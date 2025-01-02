@@ -4,7 +4,7 @@ A modern, responsive website for Tisha Hotel, showcasing our rooms, amenities, a
 
 ## Features
 
-- **Modern Design**: Clean and responsive layout that works on all devices
+- **Modern Design**: Clean and responsive layout that works on all devices.
 - **Room Showcase**: Detailed information about our Standard and Master rooms
 - **Image Gallery**: High-quality images of our hotel facilities
 - **Online Booking**: Easy reservation system
@@ -12,7 +12,7 @@ A modern, responsive website for Tisha Hotel, showcasing our rooms, amenities, a
 
 ## Pages
 
-- **Home**: Welcome section, room highlights, and image gallery
+- **Home**: Welcome section, room highlights, and image gallery carousel.
 - **Rooms**: Detailed room information and pricing
 - **About**: Hotel information and services
 - **Contact**: Location and contact details
