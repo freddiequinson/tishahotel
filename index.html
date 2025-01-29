@@ -119,9 +119,9 @@
         left: 50%;
         transform: translate(-50%, -50%);
         background: white;
-        padding: 30px 40px;
+        padding: 40px;
         border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         z-index: 1000;
         text-align: center;
         min-width: 400px;
@@ -139,13 +139,92 @@
         display: flex;
       }
 
+      .popup .content-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+      }
+
       .popup .check-icon {
         color: #28a745;
-        font-size: 48px;
-        margin-bottom: 15px;
+        font-size: 56px;
+        margin-bottom: 10px;
         opacity: 0;
         transform: scale(0.3);
         animation: checkmark 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      }
+
+      .popup h4 {
+        font-size: 24px;
+        margin: 0;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.3s;
+      }
+
+      .popup p {
+        font-size: 16px;
+        margin: 5px 0 15px;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.4s;
+        color: #666;
+      }
+
+      .popup .whatsapp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #25D366;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.5s;
+        transition: all 0.3s ease;
+      }
+
+      .popup .whatsapp-btn i {
+        font-size: 20px;
+      }
+
+      .popup .whatsapp-btn:hover {
+        background: #128C7E;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+      }
+
+      .close-popup {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 24px;
+        color: #666;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards 0.6s;
+        transition: color 0.3s ease;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f8f9fa;
+      }
+
+      .close-popup:hover {
+        color: #dc3545;
+        background: #fff1f0;
       }
 
       @keyframes checkmark {
@@ -166,78 +245,8 @@
         }
       }
 
-      .popup h4 {
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.3s;
-      }
-
-      .popup p {
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.4s;
-      }
-
-      .popup .whatsapp-btn {
-        display: inline-block;
-        background: #25D366;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        margin-top: 15px;
-        font-weight: bold;
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.5s;
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .popup .whatsapp-btn:hover {
-        background: #128C7E;
-        transform: translateY(-2px);
-        transition: all 0.3s ease;
-      }
-
-      .close-popup {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        font-size: 20px;
-        color: #666;
-        opacity: 0;
-        animation: fadeIn 0.5s ease forwards 0.6s;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      .popup-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
+      .popup h4.error {
+        color: #dc3545;
       }
 
       .popup .check-icon.error {
@@ -260,8 +269,37 @@
         }
       }
 
-      .popup h4.error {
-        color: #dc3545;
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        backdrop-filter: blur(3px);
+        transition: opacity 0.3s ease;
       }
 
       /* Add required field indicators */
@@ -603,19 +641,23 @@
     <div class="popup-overlay"></div>
     <div class="popup" id="availabilityPopup">
       <span class="close-popup">&times;</span>
-      <i class="fas fa-check-circle check-icon"></i>
-      <h4>Room Available!</h4>
-      <p>Book now on WhatsApp</p>
-      <a href="https://wa.me/233247491908" class="whatsapp-btn">
-        <i class="fab fa-whatsapp"></i> Book on WhatsApp
-      </a>
+      <div class="content-wrapper">
+        <i class="fas fa-check-circle check-icon"></i>
+        <h4>Room Available!</h4>
+        <p>Book now on WhatsApp</p>
+        <a href="https://wa.me/233247491908" class="whatsapp-btn">
+          <i class="fab fa-whatsapp"></i> Book on WhatsApp
+        </a>
+      </div>
     </div>
 
     <div class="popup" id="errorPopup">
       <span class="close-popup">&times;</span>
-      <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545;"></i>
-      <h4>Please Fill Required Fields</h4>
-      <p>Fill in the spaces with the required dates</p>
+      <div class="content-wrapper">
+        <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545;"></i>
+        <h4>Please Fill Required Fields</h4>
+        <p>Fill in the spaces with the required dates</p>
+      </div>
     </div>
 
     <footer class="section footer-section py-3">
