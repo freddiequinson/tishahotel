@@ -655,7 +655,7 @@
       <span class="close-popup">&times;</span>
       <div class="content-wrapper">
         <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545;"></i>
-        <h4>Please Fill Required Fields</h4>
+        <h4 id="errorMessage">Please Fill Required Fields</h4>
         <p>Fill in the spaces with the required dates</p>
       </div>
     </div>
@@ -728,55 +728,94 @@
     <script src="js/main.js"></script>
 
     <script>
-      // Popup functionality
-      document.addEventListener('DOMContentLoaded', function() {
-        const checkAvailabilityForm = document.querySelector('.block-32 form');
-        const successPopup = document.getElementById('availabilityPopup');
-        const errorPopup = document.getElementById('errorPopup');
-        const overlay = document.querySelector('.popup-overlay');
-        const closeButtons = document.querySelectorAll('.close-popup');
+      $(document).ready(function(){
+        // Initialize date pickers with validation
+        var today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day
 
-        // Show popup
-        function showPopup(popup) {
-          popup.classList.add('active');
-          overlay.style.display = 'block';
-        }
+        $('#checkin_date').datepicker({
+          'format': 'mm/dd/yyyy',
+          'autoclose': true,
+          'startDate': today // Prevent selecting past dates
+        });
 
-        // Hide all popups
-        function hidePopups() {
-          successPopup.classList.remove('active');
-          errorPopup.classList.remove('active');
-          overlay.style.display = 'none';
-        }
+        $('#checkout_date').datepicker({
+          'format': 'mm/dd/yyyy',
+          'autoclose': true
+        });
 
-        // Validate form
-        function validateForm() {
-          const checkinDate = document.getElementById('checkin_date').value;
-          const checkoutDate = document.getElementById('checkout_date').value;
-          const adults = document.getElementById('adults').value;
-          const children = document.getElementById('children').value;
-
-          return checkinDate && checkoutDate && adults && children;
-        }
-
-        // Form submission
-        checkAvailabilityForm.addEventListener('submit', function(e) {
-          e.preventDefault();
+        // Update checkout min date when checkin is selected
+        $('#checkin_date').on('changeDate', function(e) {
+          var checkinDate = new Date(e.date);
+          var nextDay = new Date(checkinDate);
+          nextDay.setDate(checkinDate.getDate() + 1);
           
-          if (validateForm()) {
-            showPopup(successPopup);
-          } else {
-            showPopup(errorPopup);
+          $('#checkout_date').datepicker('setStartDate', nextDay);
+          
+          // If current checkout date is before new checkin date, update it
+          var checkoutDate = $('#checkout_date').datepicker('getDate');
+          if (checkoutDate && checkoutDate <= checkinDate) {
+            $('#checkout_date').datepicker('setDate', nextDay);
           }
         });
 
+        // Show/Hide popup functions
+        function showPopup(popup) {
+          popup.addClass('active');
+          $('.popup-overlay').show();
+        }
+
+        function hidePopups() {
+          $('.popup').removeClass('active');
+          $('.popup-overlay').hide();
+        }
+
+        // Form submission
+        $('.block-32 form').on('submit', function(e) {
+          e.preventDefault();
+          
+          // Get form values
+          var checkinDate = $('#checkin_date').val();
+          var checkoutDate = $('#checkout_date').val();
+          var adults = $('#adults').val();
+          var children = $('#children').val();
+
+          // Validate dates
+          if (!checkinDate || !checkoutDate) {
+            showPopup($('#errorPopup'));
+            $('#errorMessage').text("Please select both check-in and check-out dates");
+            return;
+          }
+
+          var selectedCheckin = new Date(checkinDate);
+          selectedCheckin.setHours(0, 0, 0, 0);
+          
+          if (selectedCheckin < today) {
+            showPopup($('#errorPopup'));
+            $('#errorMessage').text("Please select a check-in date from today onwards");
+            return;
+          }
+
+          // Check if all required fields are filled
+          if (!adults || !children) {
+            showPopup($('#errorPopup'));
+            $('#errorMessage').text("Please fill in all required fields marked with *");
+            return;
+          }
+
+          // If all validations pass, show success popup
+          showPopup($('#availabilityPopup'));
+        });
+
         // Close popup when clicking the close button
-        closeButtons.forEach(btn => {
-          btn.addEventListener('click', hidePopups);
+        $('.close-popup').on('click', function() {
+          hidePopups();
         });
 
         // Close popup when clicking outside
-        overlay.addEventListener('click', hidePopups);
+        $('.popup-overlay').on('click', function() {
+          hidePopups();
+        });
       });
     </script>
   </body>
