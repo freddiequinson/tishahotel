@@ -119,12 +119,114 @@
         left: 50%;
         transform: translate(-50%, -50%);
         background: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 30px 40px;
+        border-radius: 15px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         z-index: 1000;
         text-align: center;
-        min-width: 300px;
+        min-width: 400px;
+        max-width: 90%;
+        width: auto;
+        height: auto;
+        aspect-ratio: 16/9;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .popup.active {
+        display: flex;
+      }
+
+      .popup .check-icon {
+        color: #28a745;
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0;
+        transform: scale(0.3);
+        animation: checkmark 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      }
+
+      @keyframes checkmark {
+        0% {
+          opacity: 0;
+          transform: scale(0.3) rotate(-45deg);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1) rotate(10deg);
+        }
+        70% {
+          transform: scale(0.9) rotate(-10deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0);
+        }
+      }
+
+      .popup h4 {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.3s;
+      }
+
+      .popup p {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.4s;
+      }
+
+      .popup .whatsapp-btn {
+        display: inline-block;
+        background: #25D366;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-top: 15px;
+        font-weight: bold;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards 0.5s;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .popup .whatsapp-btn:hover {
+        background: #128C7E;
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+      }
+
+      .close-popup {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 20px;
+        color: #666;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards 0.6s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       .popup-overlay {
@@ -138,34 +240,34 @@
         z-index: 999;
       }
 
-      .popup .check-icon {
-        color: #28a745;
-        font-size: 48px;
-        margin-bottom: 15px;
+      .popup .check-icon.error {
+        color: #dc3545;
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
       }
 
-      .popup .whatsapp-btn {
-        display: inline-block;
-        background: #25D366;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        margin-top: 15px;
-        font-weight: bold;
+      @keyframes shake {
+        10%, 90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%, 80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%, 50%, 70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%, 60% {
+          transform: translate3d(4px, 0, 0);
+        }
       }
 
-      .popup .whatsapp-btn:hover {
-        background: #128C7E;
+      .popup h4.error {
+        color: #dc3545;
       }
 
-      .close-popup {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        font-size: 20px;
-        color: #666;
+      /* Add required field indicators */
+      .required-field label::after {
+        content: " *";
+        color: #dc3545;
       }
     </style>
   </head>
@@ -257,43 +359,46 @@
 
             <form action="#">
               <div class="row">
-                <div class="col-md-6 mb-3 mb-lg-0 col-lg-3">
+                <div class="col-md-6 mb-3 mb-lg-0 col-lg-3 required-field">
                   <label for="checkin_date" class="font-weight-bold text-black">Check In</label>
                   <div class="field-icon-wrap">
                     <div class="icon"><span class="icon-calendar"></span></div>
-                    <input type="text" id="checkin_date" class="form-control">
+                    <input type="text" id="checkin_date" class="form-control" required>
                   </div>
                 </div>
-                <div class="col-md-6 mb-3 mb-lg-0 col-lg-3">
+                <div class="col-md-6 mb-3 mb-lg-0 col-lg-3 required-field">
                   <label for="checkout_date" class="font-weight-bold text-black">Check Out</label>
                   <div class="field-icon-wrap">
                     <div class="icon"><span class="icon-calendar"></span></div>
-                    <input type="text" id="checkout_date" class="form-control">
+                    <input type="text" id="checkout_date" class="form-control" required>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3 mb-md-0 col-lg-3">
                   <div class="row">
-                    <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="col-md-6 mb-3 mb-md-0 required-field">
                       <label for="adults" class="font-weight-bold text-black">Adults</label>
                       <div class="field-icon-wrap">
                         <div class="icon"><span class="ion-ios-arrow-down"></span></div>
-                        <select name="" id="adults" class="form-control">
-                          <option value="">1</option>
-                          <option value="">2</option>
-                          <option value="">3</option>
-                          <option value="">4+</option>
+                        <select name="" id="adults" class="form-control" required>
+                          <option value="">Select</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4+</option>
                         </select>
                       </div>
                     </div>
-                    <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="col-md-6 mb-3 mb-md-0 required-field">
                       <label for="children" class="font-weight-bold text-black">Children</label>
                       <div class="field-icon-wrap">
                         <div class="icon"><span class="ion-ios-arrow-down"></span></div>
-                        <select name="" id="children" class="form-control">
-                          <option value="">1</option>
-                          <option value="">2</option>
-                          <option value="">3</option>
-                          <option value="">4+</option>
+                        <select name="" id="children" class="form-control" required>
+                          <option value="">Select</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4+</option>
                         </select>
                       </div>
                     </div>
@@ -506,6 +611,13 @@
       </a>
     </div>
 
+    <div class="popup" id="errorPopup">
+      <span class="close-popup">&times;</span>
+      <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545;"></i>
+      <h4>Please Fill Required Fields</h4>
+      <p>Fill in the spaces with the required dates</p>
+    </div>
+
     <footer class="section footer-section py-3">
       <div class="container">
         <div class="row justify-content-center">
@@ -577,33 +689,52 @@
       // Popup functionality
       document.addEventListener('DOMContentLoaded', function() {
         const checkAvailabilityForm = document.querySelector('.block-32 form');
-        const popup = document.getElementById('availabilityPopup');
+        const successPopup = document.getElementById('availabilityPopup');
+        const errorPopup = document.getElementById('errorPopup');
         const overlay = document.querySelector('.popup-overlay');
-        const closeBtn = document.querySelector('.close-popup');
+        const closeButtons = document.querySelectorAll('.close-popup');
 
         // Show popup
-        function showPopup() {
-          popup.style.display = 'block';
+        function showPopup(popup) {
+          popup.classList.add('active');
           overlay.style.display = 'block';
         }
 
-        // Hide popup
-        function hidePopup() {
-          popup.style.display = 'none';
+        // Hide all popups
+        function hidePopups() {
+          successPopup.classList.remove('active');
+          errorPopup.classList.remove('active');
           overlay.style.display = 'none';
+        }
+
+        // Validate form
+        function validateForm() {
+          const checkinDate = document.getElementById('checkin_date').value;
+          const checkoutDate = document.getElementById('checkout_date').value;
+          const adults = document.getElementById('adults').value;
+          const children = document.getElementById('children').value;
+
+          return checkinDate && checkoutDate && adults && children;
         }
 
         // Form submission
         checkAvailabilityForm.addEventListener('submit', function(e) {
           e.preventDefault();
-          showPopup();
+          
+          if (validateForm()) {
+            showPopup(successPopup);
+          } else {
+            showPopup(errorPopup);
+          }
         });
 
         // Close popup when clicking the close button
-        closeBtn.addEventListener('click', hidePopup);
+        closeButtons.forEach(btn => {
+          btn.addEventListener('click', hidePopups);
+        });
 
         // Close popup when clicking outside
-        overlay.addEventListener('click', hidePopup);
+        overlay.addEventListener('click', hidePopups);
       });
     </script>
   </body>
