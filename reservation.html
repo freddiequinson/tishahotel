@@ -298,8 +298,8 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <div class="block-32">
-              <form action="#" id="booking-form">
+            <div class="block-32" id="booking-form">
+              <form action="#" id="reservation-form">
                 <div class="row">
                   <div class="col-md-6 mb-3 mb-lg-0">
                     <label for="first_name" class="font-weight-bold text-black">First Name <span class="text-danger">*</span></label>
@@ -416,7 +416,7 @@
         <div class="text-center">
           <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
           <h4>Booking Confirmed!</h4>
-          <p>Thank you <span id="guestName"></span> for your booking.</p>
+          <p>Thank you <span id="guestName"></span> for your booking.</commiy p>
           <p>Your receipt has been downloaded.</p>
           <p>We will contact you shortly to confirm payment details.</p>
           <div class="mt-4">
@@ -873,6 +873,44 @@
           // Reset form after successful booking
           $('#booking-form')[0].reset();
         });
+
+        // Function to get URL parameters
+        function getUrlParams() {
+          // Get the search string from after the hash
+          const hashIndex = window.location.href.indexOf('#');
+          const searchString = window.location.href.substring(hashIndex).split('?')[1];
+          if (!searchString) return {};
+          
+          const params = new URLSearchParams(searchString);
+          return {
+            checkin: params.get('checkin'),
+            checkout: params.get('checkout'),
+            adults: params.get('adults'),
+            children: params.get('children'),
+            room: params.get('room')
+          };
+        }
+
+        // Auto-fill form if parameters exist
+        function autoFillForm() {
+          const params = getUrlParams();
+          
+          if (params.checkin) $('#checkin_date').val(params.checkin);
+          if (params.checkout) $('#checkout_date').val(params.checkout);
+          if (params.adults) $('#adults').val(params.adults);
+          if (params.children) $('#children').val(params.children);
+          if (params.room) $('#room_type').val(params.room);
+          
+          // Scroll to form if there's a hash in URL
+          if (window.location.hash.includes('booking-form')) {
+            setTimeout(() => {
+              document.querySelector('#booking-form').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+          }
+        }
+
+        // Call auto-fill on page load
+        autoFillForm();
       });
     </script>
   </body>

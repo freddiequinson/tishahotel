@@ -115,197 +115,52 @@
       .popup {
         display: none;
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
         z-index: 1000;
-        text-align: center;
-        min-width: 400px;
-        max-width: 90%;
-        width: auto;
-        height: auto;
-        aspect-ratio: 16/9;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
       }
 
       .popup.active {
-        display: flex;
+        display: block;
       }
 
       .popup .content-wrapper {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .popup .check-icon {
-        color: #28a745;
-        font-size: 56px;
-        margin-bottom: 10px;
-        opacity: 0;
-        transform: scale(0.3);
-        animation: checkmark 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-      }
-
-      .popup h4 {
-        font-size: 24px;
-        margin: 0;
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.3s;
-      }
-
-      .popup p {
-        font-size: 16px;
-        margin: 5px 0 15px;
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.4s;
-        color: #666;
-      }
-
-      .popup .whatsapp-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #25D366;
-        color: white;
-        padding: 12px 24px;
+        position: relative;
+        background: white;
+        width: 90%;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
         border-radius: 8px;
-        text-decoration: none;
-        margin-top: 10px;
-        font-weight: bold;
-        font-size: 16px;
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeInUp 0.5s ease forwards 0.5s;
-        transition: all 0.3s ease;
-      }
-
-      .popup .whatsapp-btn i {
-        font-size: 20px;
-      }
-
-      .popup .whatsapp-btn:hover {
-        background: #128C7E;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
       .close-popup {
         position: absolute;
-        top: 15px;
         right: 15px;
-        cursor: pointer;
+        top: 10px;
         font-size: 24px;
+        cursor: pointer;
         color: #666;
-        opacity: 0;
-        animation: fadeIn 0.5s ease forwards 0.6s;
-        transition: color 0.3s ease;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: #f8f9fa;
+        background: none;
+        border: none;
+        padding: 0;
+        width: auto !important;
       }
 
       .close-popup:hover {
-        color: #dc3545;
-        background: #fff1f0;
+        color: #333;
       }
 
-      @keyframes checkmark {
-        0% {
-          opacity: 0;
-          transform: scale(0.3) rotate(-45deg);
+      @media (max-width: 768px) {
+        .popup .content-wrapper {
+          width: 95%;
+          margin: 10px auto;
+          padding: 15px;
         }
-        50% {
-          opacity: 1;
-          transform: scale(1.1) rotate(10deg);
-        }
-        70% {
-          transform: scale(0.9) rotate(-10deg);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1) rotate(0);
-        }
-      }
-
-      .popup h4.error {
-        color: #dc3545;
-      }
-
-      .popup .check-icon.error {
-        color: #dc3545;
-        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
-      }
-
-      @keyframes shake {
-        10%, 90% {
-          transform: translate3d(-1px, 0, 0);
-        }
-        20%, 80% {
-          transform: translate3d(2px, 0, 0);
-        }
-        30%, 50%, 70% {
-          transform: translate3d(-4px, 0, 0);
-        }
-        40%, 60% {
-          transform: translate3d(4px, 0, 0);
-        }
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      .popup-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-        backdrop-filter: blur(3px);
-        transition: opacity 0.3s ease;
-      }
-
-      /* Add required field indicators */
-      .required-field label::after {
-        content: " *";
-        color: #dc3545;
       }
     </style>
   </head>
@@ -443,7 +298,7 @@
                   </div>
                 </div>
                 <div class="col-md-6 col-lg-3 align-self-end">
-                  <button type="submit" class="btn btn-primary btn-block text-white">Check Availability</button>
+                  <button type="submit" class="btn btn-primary btn-block text-white" id="check-availability-btn">Check Availability</button>
                 </div>
               </div>
             </form>
@@ -640,14 +495,22 @@
 
     <div class="popup-overlay"></div>
     <div class="popup" id="availabilityPopup">
-      <span class="close-popup">&times;</span>
       <div class="content-wrapper">
-        <i class="fas fa-check-circle check-icon"></i>
-        <h4>Room Available!</h4>
-        <p>Book now on WhatsApp</p>
-        <a href="https://wa.me/233247491908" class="whatsapp-btn">
-          <i class="fab fa-whatsapp"></i> Book on WhatsApp
-        </a>
+        <span class="close-popup">&times;</span>
+        <div class="text-center">
+          <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
+          <h4>Room Available!</h4>
+          <p>The selected room type is available for your dates.</p>
+          <div class="mt-4">
+            <a href="https://wa.me/233247491908" class="btn btn-success mb-2" style="width: 200px;">
+              <i class="fab fa-whatsapp"></i> Book via WhatsApp
+            </a>
+            <br>
+            <a href="#" id="bookOnlineBtn" class="btn btn-primary mb-2" style="width: 200px;">
+              <i class="fas fa-calendar-check"></i> Book Online
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -815,6 +678,52 @@
         // Close popup when clicking outside
         $('.popup-overlay').on('click', function() {
           hidePopups();
+        });
+      });
+    </script>
+
+    <script>
+      $(document).ready(function() {
+        // Check Availability button click
+        $('#check-availability-btn').on('click', function(e) {
+          e.preventDefault();
+          $('#availabilityPopup').addClass('active');
+        });
+
+        // Book Online button click
+        $('#bookOnlineBtn').on('click', function(e) {
+          e.preventDefault();
+          
+          // Get form values
+          const checkin = $('#checkin_date').val();
+          const checkout = $('#checkout_date').val();
+          const adults = $('#adults').val();
+          const children = $('#children').val();
+          const room = $('#room').val();
+          
+          // Create URL with parameters
+          const params = new URLSearchParams({
+            checkin: checkin,
+            checkout: checkout,
+            adults: adults,
+            children: children,
+            room: room
+          });
+          
+          // Redirect to reservation page with parameters
+          window.location.href = `reservation.html#booking-form?${params.toString()}`;
+        });
+
+        // Close popup when clicking close button or outside
+        $('.close-popup, .popup').on('click', function(e) {
+          if ($(e.target).is('.popup') || $(e.target).is('.close-popup')) {
+            $('#availabilityPopup').removeClass('active');
+          }
+        });
+
+        // Prevent popup from closing when clicking inside content
+        $('.popup .content-wrapper').on('click', function(e) {
+          e.stopPropagation();
         });
       });
     </script>
