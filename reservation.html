@@ -24,6 +24,156 @@
 
     <!-- Theme Style -->
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+      /* Form styles */
+      .block-32 {
+        background: #fff;
+        padding: 30px;
+        -webkit-box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
+      }
+      
+      .field-icon-wrap {
+        position: relative;
+      }
+      
+      .field-icon-wrap .form-control {
+        position: relative;
+        padding-right: 40px;
+      }
+      
+      .field-icon-wrap .icon {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        z-index: 2;
+      }
+
+      /* Popup styles */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+      }
+
+      .popup .content-wrapper {
+        position: relative;
+        background: white;
+        width: 90%;
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .popup .content-wrapper {
+          width: 95%;
+          margin: 10px auto;
+          padding: 15px;
+        }
+      }
+
+      .close-popup {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      /* Receipt styles */
+      .receipt-container {
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .receipt-container {
+          padding: 10px;
+          font-size: 13px;
+        }
+      }
+
+      .receipt-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+
+      .receipt-header h5 {
+        margin-bottom: 5px;
+      }
+
+      .receipt-details > div {
+        margin-bottom: 10px;
+      }
+
+      .receipt-details h6 {
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .price-breakdown {
+        border-top: 1px dashed #eee;
+        border-bottom: 1px dashed #eee;
+        padding: 8px 0;
+        margin: 8px 0;
+      }
+
+      .price-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 3px 0;
+      }
+
+      .total-section {
+        text-align: right;
+        padding-top: 8px;
+        font-size: 16px;
+      }
+
+      .receipt-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 15px;
+      }
+
+      @media (max-width: 768px) {
+        .receipt-actions {
+          flex-direction: column;
+        }
+
+        .receipt-actions button {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
+
+      .confirm-booking, .cancel-booking {
+        padding: 8px 20px;
+        min-width: 120px;
+      }
+
+      .text-danger {
+        color: #dc3545;
+      }
+    </style>
   </head>
   <body>
     
@@ -144,6 +294,178 @@
       </div>
     </section>
 
+    <section class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="block-32">
+              <form action="#" id="booking-form">
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-lg-0">
+                    <label for="first_name" class="font-weight-bold text-black">First Name <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-person"></span></div>
+                      <input type="text" id="first_name" class="form-control" placeholder="Enter first name" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="last_name" class="font-weight-bold text-black">Last Name <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-person"></span></div>
+                      <input type="text" id="last_name" class="form-control" placeholder="Enter last name" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-lg-0">
+                    <label for="checkin_date" class="font-weight-bold text-black">Check In <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-calendar"></span></div>
+                      <input type="text" id="checkin_date" class="form-control" placeholder="Select date" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="checkout_date" class="font-weight-bold text-black">Check Out <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-calendar"></span></div>
+                      <input type="text" id="checkout_date" class="form-control" placeholder="Select date" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-lg-0">
+                    <label for="adults" class="font-weight-bold text-black">Adults <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-person"></span></div>
+                      <select name="adults" id="adults" class="form-control" required>
+                        <option value="">Select number of adults...</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="children" class="font-weight-bold text-black">Children <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-person"></span></div>
+                      <select name="children" id="children" class="form-control" required>
+                        <option value="">Select number of children...</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-lg-0">
+                    <label for="room_type" class="font-weight-bold text-black">Room Type <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-chevron-down"></span></div>
+                      <select name="room_type" id="room_type" class="form-control" required>
+                        <option value="">Select room type...</option>
+                        <option value="standard">Standard Room</option>
+                        <option value="master">Master Room</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="phone" class="font-weight-bold text-black">Phone Number <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-phone"></span></div>
+                      <input type="tel" id="phone" class="form-control" placeholder="+233 XX XXX XXXX" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12 mb-3">
+                    <label for="email" class="font-weight-bold text-black">Email</label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-envelope"></span></div>
+                      <input type="email" id="email" class="form-control" placeholder="awurama@email.com">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary btn-block text-white">Book Now</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Success Popup -->
+    <div class="popup" id="availabilityPopup">
+      <div class="content-wrapper">
+        <span class="close-popup">&times;</span>
+        <div class="text-center">
+          <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
+          <h4>Booking Confirmed!</h4>
+          <p>Thank you <span id="guestName"></span> for your booking.</p>
+          <p>Your receipt has been downloaded.</p>
+          <p>We will contact you shortly to confirm payment details.</p>
+          <div class="mt-4">
+            <a href="https://wa.me/233247491908" class="btn btn-success mb-2" style="width: 200px;">
+              <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+            </a>
+            <br>
+            <button class="btn btn-secondary close-success" style="width: 200px;">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div class="popup" id="errorPopup">
+      <div class="content-wrapper">
+        <span class="close-popup">&times;</span>
+        <h4 class="text-danger">Error</h4>
+        <p id="errorMessage"></p>
+        <button class="btn btn-secondary close-error">Close</button>
+      </div>
+    </div>
+
+    <!-- Receipt Popup -->
+    <div class="popup" id="receiptPopup">
+      <span class="close-popup">&times;</span>
+      <div class="content-wrapper">
+        <h4>Booking Summary</h4>
+        <div class="receipt-container">
+          <div class="receipt-header">
+            <h5>Tisha Hotel</h5>
+            <p class="booking-dates"></p>
+          </div>
+          <div class="receipt-details">
+            <div class="guest-info"></div>
+            <div class="room-details"></div>
+            <div class="price-breakdown"></div>
+            <div class="total-section">
+              <h5>Total Amount: <span class="total-price"></span></h5>
+            </div>
+          </div>
+        </div>
+        <div class="receipt-actions">
+          <button class="btn btn-success confirm-booking">Confirm Booking</button>
+          <button class="btn btn-secondary cancel-booking">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <footer class="section footer-section py-3">
       <div class="container">
         <div class="row justify-content-center">
@@ -193,6 +515,7 @@
       </div>
     </footer>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -210,5 +533,347 @@
     
 
     <script src="js/main.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function() {
+        emailjs.init("feRW_yJDA_cn0kK--"); // Replace with your EmailJS public key
+      })();
+    </script>
+
+    <script>
+      $(document).ready(function(){
+        // Room configurations
+        const ROOM_CONFIG = {
+          standard: {
+            price: 220,
+            maxAdults: 2,
+            maxChildren: 1,
+            name: 'Standard Room'
+          },
+          master: {
+            price: 270,
+            maxAdults: 4,
+            maxChildren: 2,
+            name: 'Master Room'
+          }
+        };
+
+        // Initialize date pickers with validation
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        $('#checkin_date').datepicker({
+          'format': 'mm/dd/yyyy',
+          'autoclose': true,
+          'startDate': today
+        });
+
+        $('#checkout_date').datepicker({
+          'format': 'mm/dd/yyyy',
+          'autoclose': true
+        });
+
+        // Calculate number of nights between dates
+        function calculateNights(checkin, checkout) {
+          const oneDay = 24 * 60 * 60 * 1000;
+          const checkInDate = new Date(checkin);
+          const checkOutDate = new Date(checkout);
+          return Math.round(Math.abs((checkOutDate - checkInDate) / oneDay));
+        }
+
+        // Calculate required rooms and total price
+        function calculateBooking(roomType, adults, children, nights) {
+          const config = ROOM_CONFIG[roomType.toLowerCase()];
+          let rooms = 1;
+          let remainingAdults = adults;
+          let remainingChildren = children;
+          
+          // Calculate additional rooms needed
+          while (remainingAdults > config.maxAdults || remainingChildren > config.maxChildren) {
+            rooms++;
+            remainingAdults = Math.max(0, remainingAdults - config.maxAdults);
+            remainingChildren = Math.max(0, remainingChildren - config.maxChildren);
+          }
+
+          return {
+            basePrice: config.price,
+            numberOfRooms: rooms,
+            totalPrice: config.price * rooms * nights,
+            nights: nights,
+            roomName: config.name
+          };
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+          return '₵' + amount.toFixed(2);
+        }
+
+        // Show receipt
+        function showReceipt(bookingDetails, formData) {
+          const receipt = $('#receiptPopup');
+          const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
+
+          // Update receipt content
+          receipt.find('.booking-dates').html(`
+            <p>Booking #: ${formData.bookingNumber}</p>
+            <p>Check-in: ${formData.checkinDate}<br>
+            Check-out: ${formData.checkoutDate}<br>
+            Duration: ${nights} night${nights > 1 ? 's' : ''}</p>
+          `);
+
+          receipt.find('.guest-info').html(`
+            <h6>Guest Information:</h6>
+            <p>
+              Name: ${formData.firstName} ${formData.lastName}<br>
+              Phone: ${formData.phone}<br>
+              ${formData.email ? 'Email: ' + formData.email + '<br>' : ''}
+              Adults: ${formData.adults}<br>
+              Children: ${formData.children}
+            </p>
+          `);
+
+          receipt.find('.room-details').html(`
+            <h6>Room Details:</h6>
+            <p>
+              Room Type: ${bookingDetails.roomName}<br>
+              Number of Rooms: ${bookingDetails.numberOfRooms}
+            </p>
+          `);
+
+          receipt.find('.price-breakdown').html(`
+            <h6>Price Breakdown:</h6>
+            <div class="price-item">
+              <span>${bookingDetails.roomName} x ${bookingDetails.numberOfRooms} x ${nights} nights</span>
+              <span>${formatCurrency(bookingDetails.totalPrice)}</span>
+            </div>
+          `);
+
+          receipt.find('.total-price').text(formatCurrency(bookingDetails.totalPrice));
+
+          // Store booking details for confirmation
+          receipt.data('bookingDetails', {
+            ...formData,
+            totalAmount: bookingDetails.totalPrice,
+            numberOfRooms: bookingDetails.numberOfRooms
+          });
+
+          showPopup(receipt);
+        }
+
+        // Generate booking number
+        function generateBookingNumber() {
+          const date = new Date();
+          const year = date.getFullYear().toString().substr(-2);
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const day = date.getDate().toString().padStart(2, '0');
+          const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+          return `TH${year}${month}${day}-${random}`;
+        }
+
+        // Download receipt
+        function downloadReceipt(bookingData) {
+          // Create new jsPDF instance
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          
+          // Set font
+          doc.setFont("helvetica");
+          
+          // Add hotel name
+          doc.setFontSize(24);
+          doc.text("Tisha Hotel", 105, 20, { align: "center" });
+          
+          // Add booking number
+          doc.setFontSize(14);
+          doc.text("Booking Receipt", 105, 30, { align: "center" });
+          doc.text(`Booking #: ${bookingData.bookingNumber}`, 105, 40, { align: "center" });
+          
+          // Add guest information
+          doc.setFontSize(16);
+          doc.text("Guest Information", 20, 60);
+          doc.setFontSize(12);
+          doc.text(`Name: ${bookingData.firstName} ${bookingData.lastName}`, 20, 70);
+          doc.text(`Phone: ${bookingData.phone}`, 20, 80);
+          if (bookingData.email) {
+            doc.text(`Email: ${bookingData.email}`, 20, 90);
+          }
+          
+          // Add booking details
+          doc.setFontSize(16);
+          doc.text("Booking Details", 20, 110);
+          doc.setFontSize(12);
+          doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 120);
+          doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 130);
+          doc.text(`Room Type: ${ROOM_CONFIG[bookingData.roomType.toLowerCase()].name}`, 20, 140);
+          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 150);
+          doc.text(`Adults: ${bookingData.adults}`, 20, 160);
+          doc.text(`Children: ${bookingData.children}`, 20, 170);
+          
+          // Add total amount
+          doc.setFontSize(16);
+          doc.text(`Total Amount: GHS ${bookingData.totalAmount.toFixed(2)}`, 20, 190);
+          
+          // Add payment notice
+          doc.setTextColor(220, 53, 69); // Red color for warning
+          doc.setFontSize(14);
+          doc.text("PAYMENT PENDING", 105, 210, { align: "center" });
+          doc.setTextColor(0); // Reset to black
+          doc.setFontSize(12);
+          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 220, { align: "center" });
+          
+          // Add footer
+          doc.setFontSize(10);
+          doc.text("Tisha Hotel", 105, 260, { align: "center" });
+          doc.text("Phone: +233 24 749 1908", 105, 265, { align: "center" });
+          doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 270, { align: "center" });
+          
+          // Save the PDF
+          doc.save(`booking-${bookingData.bookingNumber}.pdf`);
+        }
+
+        // Form submission
+        $('#booking-form').on('submit', function(e) {
+          e.preventDefault();
+          
+          // Get form values
+          var formData = {
+            firstName: $('#first_name').val().trim(),
+            lastName: $('#last_name').val().trim(),
+            checkinDate: $('#checkin_date').val().trim(),
+            checkoutDate: $('#checkout_date').val().trim(),
+            adults: parseInt($('#adults').val()),
+            children: parseInt($('#children').val()),
+            roomType: $('#room_type').val().trim(),
+            phone: $('#phone').val().trim(),
+            email: $('#email').val().trim()
+          };
+
+          // Check if required fields are filled
+          if (!formData.firstName || !formData.lastName || !formData.checkinDate || 
+              !formData.checkoutDate || !formData.adults || !formData.roomType || 
+              !formData.phone || formData.children === undefined) {
+            $('#errorMessage').text("Please fill in all required fields marked with *");
+            showPopup($('#errorPopup'));
+            return;
+          }
+
+          var selectedCheckin = new Date(formData.checkinDate);
+          selectedCheckin.setHours(0, 0, 0, 0);
+          
+          if (selectedCheckin < today) {
+            $('#errorMessage').text("Please select a check-in date from today onwards");
+            showPopup($('#errorPopup'));
+            return;
+          }
+
+          if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            $('#errorMessage').text("Please enter a valid email address");
+            showPopup($('#errorPopup'));
+            return;
+          }
+
+          if (!/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
+            $('#errorMessage').text("Please enter a valid phone number");
+            showPopup($('#errorPopup'));
+            return;
+          }
+
+          // Calculate booking details
+          const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
+          const bookingDetails = calculateBooking(formData.roomType, formData.adults, formData.children, nights);
+
+          // Generate booking number
+          const bookingNumber = generateBookingNumber();
+
+          // Show receipt
+          showReceipt(bookingDetails, { ...formData, bookingNumber });
+        });
+
+        // Handle booking confirmation
+        $('.confirm-booking').on('click', function() {
+          const receipt = $('#receiptPopup');
+          const bookingData = receipt.data('bookingDetails');
+
+          // Prepare email template parameters
+          var templateParams = {
+            to_email: 'theblindfolderr@gmail.com',
+            from_name: bookingData.firstName + ' ' + bookingData.lastName,
+            first_name: bookingData.firstName,
+            last_name: bookingData.lastName,
+            booking_number: bookingData.bookingNumber,
+            checkin_date: bookingData.checkinDate,
+            checkout_date: bookingData.checkoutDate,
+            adults: bookingData.adults,
+            children: bookingData.children,
+            room_type: bookingData.roomType,
+            phone: bookingData.phone,
+            email: bookingData.email || 'Not provided',
+            total_amount: formatCurrency(bookingData.totalAmount),
+            number_of_rooms: bookingData.numberOfRooms
+          };
+
+          // Send email using EmailJS
+          emailjs.send('service_hlgcksm', 'template_12yx168', templateParams)
+            .then(function(response) {
+              hidePopups();
+              $('#guestName').text(bookingData.firstName + ' ' + bookingData.lastName);
+              showPopup($('#availabilityPopup'));
+              
+              // Download receipt after successful booking
+              downloadReceipt(bookingData);
+            }, function(error) {
+              console.error('Email error:', error);
+              $('#errorMessage').text('Failed to send booking request. Please try again or contact us directly.');
+              showPopup($('#errorPopup'));
+            });
+        });
+
+        // Handle booking cancellation
+        $('.cancel-booking').on('click', function() {
+          hidePopups();
+        });
+
+        // Show/Hide popup functions
+        function showPopup(popup) {
+          popup.fadeIn(200).addClass('active');
+        }
+
+        function hidePopups() {
+          $('.popup').fadeOut(200).removeClass('active');
+        }
+
+        // Close popup when clicking the close button
+        $('.close-popup').on('click', function(e) {
+          e.preventDefault();
+          hidePopups();
+        });
+
+        // Close popup when clicking outside
+        $(document).on('click', function(e) {
+          if (!$(e.target).closest('.popup .content-wrapper').length && !$(e.target).closest('form').length) {
+            hidePopups();
+          }
+        });
+
+        // Prevent popup from closing when clicking inside it
+        $('.popup').on('click', function(e) {
+          e.stopPropagation();
+        });
+
+        // Close error popup when clicking the close button
+        $('.close-error').on('click', function() {
+          hidePopups();
+        });
+
+        // Close success popup when clicking the close button
+        $('.close-success').on('click', function() {
+          hidePopups();
+          // Reset form after successful booking
+          $('#booking-form')[0].reset();
+        });
+      });
+    </script>
   </body>
 </html>
