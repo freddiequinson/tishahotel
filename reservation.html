@@ -417,7 +417,7 @@
         <div class="text-center">
           <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
           <h4>Booking Confirmed!</h4>
-          <p>Thank you <span id="guestName"></span> for your booking.</commiy p>
+          <p>Thank you <span id="guestName"></span> for your booking.</p>
           <p>Your receipt has been downloaded.</p>
           <p>We will contact you shortly to confirm payment details.</p>
           <div class="mt-4">
@@ -915,6 +915,70 @@
 
         // Call auto-fill on page load
         autoFillForm();
+
+        // Function to format date in a more readable way
+        function formatDate(dateStr) {
+          const date = new Date(dateStr);
+          return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // Function to create WhatsApp message with booking details
+        function createWhatsAppMessage(bookingData) {
+          const message = `Hello! I just made a booking at Tisha Hotel:
+
+*Booking Details:*
+Name: ${bookingData.firstName} ${bookingData.lastName}
+Phone: ${bookingData.phone}
+${bookingData.email ? `Email: ${bookingData.email}` : ''}
+Check-in: ${formatDate(bookingData.checkinDate)}
+Check-out: ${formatDate(bookingData.checkoutDate)}
+Room Type: ${ROOM_CONFIG[bookingData.roomType.toLowerCase()].name}
+Number of Rooms: ${bookingData.numberOfRooms}
+Adults: ${bookingData.adults}
+Children: ${bookingData.children}
+Total Amount: GHS ${bookingData.totalAmount}
+
+Booking Reference: ${bookingData.bookingNumber}`;
+
+          return encodeURIComponent(message);
+        }
+
+        // Update WhatsApp link with booking details
+        $('#booking-form').on('submit', function(e) {
+          e.preventDefault();
+          
+          // Get form data
+          const bookingData = {
+            firstName: $('#first_name').val(),
+            lastName: $('#last_name').val(),
+            phone: $('#phone').val(),
+            email: $('#email').val(),
+            checkinDate: $('#checkin_date').val(),
+            checkoutDate: $('#checkout_date').val(),
+            roomType: $('#room_type').val(),
+            numberOfRooms: $('#number_of_rooms').val(),
+            adults: $('#adults').val(),
+            children: $('#children').val(),
+            totalAmount: calculateTotal(),
+            bookingNumber: generateBookingNumber()
+          };
+
+          // Store booking data for PDF
+          window.currentBooking = bookingData;
+
+          // Update WhatsApp link with booking details
+          const whatsappMessage = createWhatsAppMessage(bookingData);
+          $('#bookingSuccessPopup .btn-success').attr('href', `https://wa.me/233241703838?text=${whatsappMessage}`);
+
+          // Show success popup
+          $('#bookingSuccessPopup').addClass('active');
+          
+          // Generate and download PDF
+          downloadReceipt(bookingData);
+          
+          // Reset form after successful booking
+          $('#reservation-form')[0].reset();
+        });
       });
     </script>
   </body>
