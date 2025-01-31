@@ -646,7 +646,12 @@
           };
         }
 
-        // Format currency
+        // Format currency for PDF
+        function formatCurrencyPDF(amount) {
+          return 'GHS ' + amount.toFixed(2);
+        }
+
+        // Format currency for display
         function formatCurrency(amount) {
           return '₵' + amount.toFixed(2);
         }
@@ -686,7 +691,11 @@
           receipt.find('.price-breakdown').html(`
             <h6>Price Breakdown:</h6>
             <div class="price-item">
-              <span>${bookingDetails.roomName} x ${bookingDetails.numberOfRooms} x ${nights} nights</span>
+              <span>Room Rate (per night)</span>
+              <span>${formatCurrency(bookingDetails.basePrice)}</span>
+            </div>
+            <div class="price-item">
+              <span>${bookingDetails.roomName} x ${bookingDetails.numberOfRooms} rooms x ${nights} nights</span>
               <span>${formatCurrency(bookingDetails.totalPrice)}</span>
             </div>
           `);
@@ -748,21 +757,24 @@
           doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 120);
           doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 130);
           doc.text(`Room Type: ${ROOM_CONFIG[bookingData.roomType.toLowerCase()].name}`, 20, 140);
-          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 150);
-          doc.text(`Adults: ${bookingData.adults}`, 20, 160);
-          doc.text(`Children: ${bookingData.children}`, 20, 170);
+          doc.text(`Room Rate: ${formatCurrencyPDF(ROOM_CONFIG[bookingData.roomType.toLowerCase()].price)} per night`, 20, 150);
+          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 160);
           
-          // Add total amount
+          // Add payment details
           doc.setFontSize(16);
-          doc.text(`Total Amount: GHS ${bookingData.totalAmount.toFixed(2)}`, 20, 190);
+          doc.text("Payment Details", 20, 180);
+          doc.setFontSize(12);
+          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
+          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 190);
+          doc.text(`Total Amount: ${formatCurrencyPDF(bookingData.totalAmount)}`, 20, 200);
           
           // Add payment notice
           doc.setTextColor(220, 53, 69); // Red color for warning
           doc.setFontSize(14);
-          doc.text("PAYMENT PENDING", 105, 210, { align: "center" });
+          doc.text("PAYMENT PENDING", 105, 220, { align: "center" });
           doc.setTextColor(0); // Reset to black
           doc.setFontSize(12);
-          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 220, { align: "center" });
+          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 230, { align: "center" });
           
           // Add footer
           doc.setFontSize(10);
