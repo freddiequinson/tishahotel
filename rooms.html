@@ -42,10 +42,9 @@
         text-decoration: none;
         color: var(--primary-color);
       }
-      
-      .site-logo a span {
-        display: inline-block;
-        line-height: 1.2;
+
+      .site-logo .mobile-break {
+        display: none;
       }
       
       @media (max-width: 991.98px) {
@@ -54,13 +53,12 @@
           align-items: center;
           font-size: 24px;
         }
-        .site-logo a img {
+        .site-logo img {
           height: 40px;
           margin-right: 10px;
         }
-        .site-logo a span {
-          display: inline-block;
-          line-height: 1.2;
+        .site-logo .mobile-break {
+          display: inline;
         }
       }
     </style>
@@ -73,7 +71,7 @@
           <div class="col-6 col-lg-4 site-logo" data-aos="fade">
             <a href="index.html">
               <img src="assets/hotellogo.jpg" alt="Tisha Hotel Logo">
-              <span>Tisha<br>Hotel</span>
+              <span>Tisha<span class="mobile-break"><br></span> Hotel</span>
             </a>
           </div>
           <div class="col-6 col-lg-8">

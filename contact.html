@@ -43,10 +43,9 @@
         text-decoration: none;
         color: var(--primary-color);
       }
-      
-      .site-logo a span {
-        display: inline-block;
-        line-height: 1.2;
+
+      .site-logo .mobile-break {
+        display: none;
       }
       
       @media (max-width: 991.98px) {
@@ -55,13 +54,12 @@
           align-items: center;
           font-size: 24px;
         }
-        .site-logo a img {
+        .site-logo img {
           height: 40px;
           margin-right: 10px;
         }
-        .site-logo a span {
-          display: inline-block;
-          line-height: 1.2;
+        .site-logo .mobile-break {
+          display: inline;
         }
       }
     </style>
@@ -74,7 +72,7 @@
           <div class="col-6 col-lg-4 site-logo" data-aos="fade">
             <a href="index.html">
               <img src="assets/hotellogo.jpg" alt="Tisha Hotel Logo">
-              <span>Tisha<br>Hotel</span>
+              <span>Tisha<span class="mobile-break"><br></span> Hotel</span>
             </a>
           </div>
           <div class="col-6 col-lg-8">
@@ -182,7 +180,6 @@
                         <i class="fa fa-phone text-primary"></i> Phone Numbers
                       </h5>
                       <div class="mb-3">
-                        <label class="text-black font-weight-bold small">Manager</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-light" value="+233 24 749 1908" readonly>
                           <div class="input-group-append">
@@ -193,7 +190,6 @@
                         </div>
                       </div>
                       <div>
-                        <label class="text-black font-weight-bold small">Hotel Reception</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-light" value="+233 24 170 3838" readonly>
                           <div class="input-group-append">
