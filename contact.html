@@ -260,8 +260,11 @@
                       <h5 class="card-title mb-3">
                         <i class="fa fa-envelope text-primary"></i> Send us a Message
                       </h5>
+                      <div class="form-group mb-3">
+                        <input type="text" name="from_name" class="form-control" placeholder="Your Name" required>
+                      </div>
                       <div class="form-group">
-                        <textarea name="message" class="form-control" cols="30" rows="4" placeholder="Write your message here..."></textarea>
+                        <textarea name="message" class="form-control" cols="30" rows="4" placeholder="Write your message here..." required></textarea>
                       </div>
                       <button type="submit" class="btn btn-primary">
                         <i class="fa fa-paper-plane"></i> Send Message
@@ -345,5 +348,46 @@
     
 
     <script src="js/main.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function() {
+        emailjs.init("uyzj8ytbBxqbveQ48");
+      })();
+
+      // Handle form submission
+      document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show sending state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+
+        // Get form data
+        const messageText = this.querySelector('textarea[name="message"]').value;
+        const fromName = this.querySelector('input[name="from_name"]').value;
+
+        // Send email using EmailJS
+        emailjs.send("service_hlgcksm", "template_gryxx28", {
+          message: messageText,
+          from_name: fromName,
+          to_name: "Tisha Hotel"
+        }).then(
+          function(response) {
+            console.log("SUCCESS", response);
+            alert("Message sent successfully!");
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          },
+          function(error) {
+            console.error("FAILED", error);
+            alert("Failed to send message: " + error.text);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        );
+      });
+    </script>
   </body>
 </html>
