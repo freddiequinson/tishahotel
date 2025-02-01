@@ -179,8 +179,7 @@ textarea.form-control {
   height: 100vh;
   min-height: 700px;
   width: 100%;
-  position: relative;
-  z-index: 1; }
+  position: relative; }
   .site-hero .heading {
     font-family: "Playfair Display", times, serif;
     font-weight: bold; }
@@ -193,7 +192,6 @@ textarea.form-control {
     transform: translateX(-50%);
     color: #fff; }
   .site-hero.overlay:before {
-    z-index: 1;
     background: rgba(0, 0, 0, 0.45);
     content: "";
     position: absolute;
@@ -209,77 +207,10 @@ textarea.form-control {
     .site-hero.inner-page.overlay:before {
       height: 50vh;
       min-height: 700px; }
-  .site-hero .check-availabilty {
-    position: relative;
-    z-index: 20;
-    margin-top: -100px;
-    pointer-events: auto;
-    background: transparent; }
-  .site-hero .block-32 {
-    background: #fff;
-    padding: 30px;
-    box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    position: relative;
-    z-index: 20;
-    border-radius: 4px; }
-    .site-hero .block-32 label {
-      font-weight: bold;
-      color: #333; }
-    .site-hero .block-32 .form-control {
-      height: 45px;
-      background: #fff;
-      border: 1px solid #ddd; }
-    .site-hero .block-32 .btn {
-      height: 45px;
-      padding-top: 12px; }
-
-.availability-container {
-  margin-top: -100px;
-  position: relative;
-  z-index: 20;
-}
-
-.block-32 {
-  background: #fff;
-  padding: 30px;
-  box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-.block-32 label {
-  color: #333;
-  font-weight: bold;
-}
-
-.block-32 .form-control {
-  height: 45px;
-  border: 1px solid #ddd;
-  border-radius: 0;
-}
-
-.block-32 .field-icon-wrap {
-  position: relative;
-}
-
-.block-32 .field-icon-wrap .icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #333;
-}
-
-.block-32 .btn {
-  height: 45px;
-  padding-top: 12px;
-}
 
 .site-hero-inner {
   height: 100vh;
-  min-height: 700px;
-  position: relative;
-  z-index: 1; }
+  min-height: 700px; }
   .site-hero-inner .heading {
     font-size: 80px;
     font-family: "Playfair Display", times, serif;
