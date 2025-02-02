@@ -62,6 +62,43 @@
           display: inline;
         }
       }
+
+      /* Star Rating Styles */
+      .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+
+      .star-rating input {
+        display: none;
+      }
+
+      .star-rating label {
+        color: #ddd;
+        font-size: 24px;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .star-rating label:hover,
+      .star-rating label:hover ~ label,
+      .star-rating input:checked ~ label {
+        color: #ffd700;
+      }
+
+      .star-rating label:hover:before,
+      .star-rating label:hover ~ label:before,
+      .star-rating input:checked ~ label:before {
+        content: '\f005';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+      }
+
+      #ratingSection {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -263,6 +300,30 @@
                       <div class="form-group mb-3">
                         <input type="text" name="from_name" class="form-control" placeholder="Your Name" required>
                       </div>
+                      <div class="form-group mb-3">
+                        <label for="messageType">Message Type</label>
+                        <select name="messageType" id="messageType" class="form-control" required>
+                          <option value="">Select Message Type</option>
+                          <option value="complaint">Complaint</option>
+                          <option value="review">Review</option>
+                          <option value="request">Request</option>
+                        </select>
+                      </div>
+                      <div id="ratingSection" class="form-group mb-3 text-center">
+                        <label>Your Rating</label>
+                        <div class="star-rating">
+                          <input type="radio" id="star5" name="rating" value="5" required>
+                          <label for="star5" class="fa-regular fa-star"></label>
+                          <input type="radio" id="star4" name="rating" value="4">
+                          <label for="star4" class="fa-regular fa-star"></label>
+                          <input type="radio" id="star3" name="rating" value="3">
+                          <label for="star3" class="fa-regular fa-star"></label>
+                          <input type="radio" id="star2" name="rating" value="2">
+                          <label for="star2" class="fa-regular fa-star"></label>
+                          <input type="radio" id="star1" name="rating" value="1">
+                          <label for="star1" class="fa-regular fa-star"></label>
+                        </div>
+                      </div>
                       <div class="form-group">
                         <textarea name="message" class="form-control" cols="30" rows="4" placeholder="Write your message here..." required></textarea>
                       </div>
@@ -349,6 +410,20 @@
 
     <script src="js/main.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        // Show/hide rating section based on message type
+        $('#messageType').on('change', function() {
+          if (this.value === 'review') {
+            $('#ratingSection').slideDown();
+            $('#ratingSection input[name="rating"]').prop('required', true);
+          } else {
+            $('#ratingSection').slideUp();
+            $('#ratingSection input[name="rating"]').prop('required', false);
+          }
+        });
+      });
+    </script>
     <script type="text/javascript">
       (function() {
         emailjs.init("uyzj8ytbBxqbveQ48");
@@ -357,34 +432,51 @@
       // Handle form submission
       document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Show sending state
+
+        // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
+        const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+        submitBtn.disabled = true;
 
         // Get form data
         const messageText = this.querySelector('textarea[name="message"]').value;
         const fromName = this.querySelector('input[name="from_name"]').value;
+        const messageType = this.querySelector('select[name="messageType"]').value;
+        
+        // Get rating only if message type is review
+        let rating = 'N/A';
+        if (messageType === 'review') {
+          const ratingInput = this.querySelector('input[name="rating"]:checked');
+          rating = ratingInput ? ratingInput.value + ' stars' : 'No rating provided';
+        }
 
         // Send email using EmailJS
         emailjs.send("service_hlgcksm", "template_gryxx28", {
           message: messageText,
           from_name: fromName,
+          message_type: messageType,
+          rating: rating,
           to_name: "Tisha Hotel"
         }).then(
           function(response) {
-            console.log("SUCCESS", response);
-            alert("Message sent successfully!");
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            // Success
+            submitBtn.innerHTML = '<i class="fa fa-check"></i> Message Sent!';
+            setTimeout(() => {
+              submitBtn.innerHTML = originalBtnText;
+              submitBtn.disabled = false;
+            }, 3000);
+            document.querySelector('form').reset();
+            $('#ratingSection').slideUp();
           },
           function(error) {
-            console.error("FAILED", error);
-            alert("Failed to send message: " + error.text);
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            // Error
+            submitBtn.innerHTML = '<i class="fa fa-times"></i> Error Sending';
+            setTimeout(() => {
+              submitBtn.innerHTML = originalBtnText;
+              submitBtn.disabled = false;
+            }, 3000);
+            console.log("Error:", error);
           }
         );
       });
