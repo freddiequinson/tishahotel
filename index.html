@@ -101,14 +101,25 @@
         background-color: var(--primary-color);
       }
 
-      .btn-success {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+      /* Popup close button styling */
+      .close-popup {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        background: #fff;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000;
       }
 
-      .btn-success:hover {
-        background-color: #236B43;
-        border-color: #236B43;
+      .close-popup:hover {
+        background: #f8f9fa;
       }
 
       /* Popup Styles */
@@ -136,23 +147,6 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      .close-popup {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
-        background: none;
-        border: none;
-        padding: 0;
-        width: auto !important;
-      }
-
-      .close-popup:hover {
-        color: #333;
       }
 
       @media (max-width: 768px) {
@@ -496,7 +490,7 @@
     <div class="popup-overlay"></div>
     <div class="popup" id="availabilityPopup">
       <div class="content-wrapper">
-        <span class="close-popup">&times;</span>
+        <span class="close-popup" onclick="hidePopups()">&times;</span>
         <div class="text-center">
           <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
           <h4>Room Available!</h4>
@@ -515,11 +509,13 @@
     </div>
 
     <div class="popup" id="errorPopup">
-      <span class="close-popup">&times;</span>
       <div class="content-wrapper">
-        <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545;"></i>
-        <h4 id="errorMessage">Please Fill Required Fields</h4>
-        <p>Fill in the spaces with the required dates</p>
+        <span class="close-popup" onclick="hidePopups()">&times;</span>
+        <div class="text-center">
+          <i class="fas fa-exclamation-circle check-icon" style="color: #dc3545; font-size: 64px;"></i>
+          <h4 id="errorMessage">Please Fill Required Fields</h4>
+          <p>Fill in the spaces with the required dates</p>
+        </div>
       </div>
     </div>
 
@@ -594,6 +590,17 @@
     <script src="js/main.js"></script>
 
     <script>
+      // Show/Hide popup functions
+      function showPopup(popup) {
+        popup.addClass('active');
+        $('.popup-overlay').show();
+      }
+
+      function hidePopups() {
+        $('.popup').removeClass('active');
+        $('.popup-overlay').hide();
+      }
+
       $(document).ready(function(){
         // Initialize date pickers with validation
         var today = new Date();
@@ -624,17 +631,6 @@
             $('#checkout_date').datepicker('setDate', nextDay);
           }
         });
-
-        // Show/Hide popup functions
-        function showPopup(popup) {
-          popup.addClass('active');
-          $('.popup-overlay').show();
-        }
-
-        function hidePopups() {
-          $('.popup').removeClass('active');
-          $('.popup-overlay').hide();
-        }
 
         // Form submission
         $('.block-32 form').on('submit', function(e) {
@@ -669,28 +665,13 @@
             return;
           }
 
-          // If all validations pass, show success popup
+          // If all validations pass, show availability popup
           showPopup($('#availabilityPopup'));
-        });
-
-        // Close popup when clicking the close button
-        $('.close-popup').on('click', function() {
-          hidePopups();
         });
 
         // Close popup when clicking outside
         $('.popup-overlay').on('click', function() {
           hidePopups();
-        });
-      });
-    </script>
-
-    <script>
-      $(document).ready(function() {
-        // Check Availability button click
-        $('#check-availability-btn').on('click', function(e) {
-          e.preventDefault();
-          $('#availabilityPopup').addClass('active');
         });
 
         // Book Online button click
@@ -702,31 +683,17 @@
           const checkout = $('#checkout_date').val();
           const adults = $('#adults').val();
           const children = $('#children').val();
-          const room = $('#room').val();
           
           // Create URL with parameters
           const params = new URLSearchParams({
             checkin: checkin,
             checkout: checkout,
             adults: adults,
-            children: children,
-            room: room
+            children: children
           });
           
           // Redirect to reservation page with parameters
           window.location.href = `reservation.html#booking-form?${params.toString()}`;
-        });
-
-        // Close popup when clicking close button or outside
-        $('.close-popup, .popup').on('click', function(e) {
-          if ($(e.target).is('.popup') || $(e.target).is('.close-popup')) {
-            $('#availabilityPopup').removeClass('active');
-          }
-        });
-
-        // Prevent popup from closing when clicking inside content
-        $('.popup .content-wrapper').on('click', function(e) {
-          e.stopPropagation();
         });
       });
     </script>
