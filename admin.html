@@ -1,0 +1,460 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin Panel - Tisha Hotel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/jpg" href="assets/hotellogo.jpg">
+    
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=|Roboto+Sans:400,700|Playfair+Display:400,700">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/aos.css">
+    <link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+      .admin-section {
+        display: none;
+      }
+      
+      .admin-section.active {
+        display: block;
+      }
+      
+      .room-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+      }
+      
+      .room-card img {
+        max-width: 200px;
+        height: auto;
+        margin-bottom: 15px;
+      }
+      
+      .price-input {
+        max-width: 150px;
+      }
+      
+      .login-form {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+      }
+
+      .alert {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .nav-tabs .nav-link {
+        color: #333;
+      }
+
+      .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+
+      .tab-content {
+        padding: 20px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-top: none;
+      }
+
+      .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .custom-file-upload:hover {
+        background: #e9ecef;
+      }
+
+      .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin: 10px 0;
+      }
+
+      /* Logo styles */
+      .site-logo {
+        display: flex;
+        align-items: center;
+      }
+      
+      .site-logo img {
+        width: auto;
+        height: 50px !important;
+        margin-right: 10px;
+      }
+      
+      .site-logo a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--primary-color);
+      }
+
+      .site-logo span {
+        font-size: 1.2rem;
+      }
+
+      @media (max-width: 991.98px) {
+        .site-logo img {
+          height: 40px !important;
+        }
+        .site-logo span {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header js-site-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-6 col-lg-4 site-logo" data-aos="fade">
+            <a href="index.html">
+              <img src="assets/hotellogo.jpg" alt="Tisha Hotel Logo">
+              <span>Tisha Hotel</span>
+            </a>
+          </div>
+          <div class="col-6 col-lg-8">
+            <div class="site-menu-toggle js-site-menu-toggle" data-aos="fade">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="site-navbar js-site-navbar">
+              <nav role="navigation">
+                <div class="container">
+                  <div class="row full-height align-items-center">
+                    <div class="col-md-6 mx-auto">
+                      <ul class="list-unstyled menu">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="rooms.html">Rooms</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="reservation.html">Reservation</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Login Section -->
+    <section class="section" id="loginSection">
+      <div class="container">
+        <div class="login-form">
+          <h2 class="text-center mb-4">Admin Login</h2>
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+          </form>
+          <div class="alert alert-danger" id="loginError">
+            Invalid username or password
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Dashboard -->
+    <section class="section admin-section" id="adminDashboard">
+      <div class="container">
+        <h2 class="mb-4">Admin Dashboard</h2>
+        
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="rooms-tab" data-toggle="tab" href="#rooms" role="tab">Rooms</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="prices-tab" data-toggle="tab" href="#prices" role="tab">Prices</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab">Images</a>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="adminTabContent">
+          <!-- Rooms Tab -->
+          <div class="tab-pane fade show active" id="rooms" role="tabpanel">
+            <div class="room-cards">
+              <!-- Junior Suite -->
+              <div class="room-card">
+                <h3>Junior Suite</h3>
+                <img src="assets/junior-room.jpg" alt="Junior Suite" class="img-fluid">
+                <div class="form-group">
+                  <label>Room Description</label>
+                  <textarea class="form-control" rows="3">Our cozy Junior Suite offers comfort and convenience, perfect for small families with all essential amenities including free WiFi, DStv, and minibar.</textarea>
+                </div>
+                <div class="form-group">
+                  <label>Price (GH₵)</label>
+                  <input type="number" class="form-control price-input" value="250">
+                </div>
+                <div class="form-group">
+                  <label>Max Occupancy</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="2" placeholder="Adults">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="1" placeholder="Children">
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Save Changes</button>
+              </div>
+
+              <!-- Standard Room -->
+              <div class="room-card">
+                <h3>Standard Room</h3>
+                <img src="assets/standard-room.jpg" alt="Standard Room" class="img-fluid">
+                <div class="form-group">
+                  <label>Room Description</label>
+                  <textarea class="form-control" rows="3">Our comfortable Standard Room offers all essential amenities for a pleasant stay, including free WiFi, DStv, and a well-stocked minibar.</textarea>
+                </div>
+                <div class="form-group">
+                  <label>Price (GH₵)</label>
+                  <input type="number" class="form-control price-input" value="280">
+                </div>
+                <div class="form-group">
+                  <label>Max Occupancy</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="2" placeholder="Adults">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="2" placeholder="Children">
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Save Changes</button>
+              </div>
+
+              <!-- Master Room -->
+              <div class="room-card">
+                <h3>Master Room</h3>
+                <img src="assets/master-room.jpg" alt="Master Room" class="img-fluid">
+                <div class="form-group">
+                  <label>Room Description</label>
+                  <textarea class="form-control" rows="3">Our luxurious Master Room provides extra space and comfort, complete with all premium amenities for an exceptional stay.</textarea>
+                </div>
+                <div class="form-group">
+                  <label>Price (GH₵)</label>
+                  <input type="number" class="form-control price-input" value="300">
+                </div>
+                <div class="form-group">
+                  <label>Max Occupancy</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="3" placeholder="Adults">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" class="form-control" value="2" placeholder="Children">
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prices Tab -->
+          <div class="tab-pane fade" id="prices" role="tabpanel">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Room Type</th>
+                    <th>Current Price</th>
+                    <th>New Price</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Junior Suite</td>
+                    <td>GH₵250</td>
+                    <td><input type="number" class="form-control price-input" value="250"></td>
+                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>Standard Room</td>
+                    <td>GH₵280</td>
+                    <td><input type="number" class="form-control price-input" value="280"></td>
+                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>Master Room</td>
+                    <td>GH₵300</td>
+                    <td><input type="number" class="form-control price-input" value="300"></td>
+                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Images Tab -->
+          <div class="tab-pane fade" id="images" role="tabpanel">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Junior Suite Image</h5>
+                    <img src="assets/junior-room.jpg" class="img-fluid image-preview" alt="Junior Suite">
+                    <label class="custom-file-upload">
+                      <input type="file" accept="image/*" style="display: none;">
+                      Choose New Image
+                    </label>
+                    <button class="btn btn-primary btn-sm mt-2">Upload</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Standard Room Image</h5>
+                    <img src="assets/standard-room.jpg" class="img-fluid image-preview" alt="Standard Room">
+                    <label class="custom-file-upload">
+                      <input type="file" accept="image/*" style="display: none;">
+                      Choose New Image
+                    </label>
+                    <button class="btn btn-primary btn-sm mt-2">Upload</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Master Room Image</h5>
+                    <img src="assets/master-room.jpg" class="img-fluid image-preview" alt="Master Room">
+                    <label class="custom-file-upload">
+                      <input type="file" accept="image/*" style="display: none;">
+                      Choose New Image
+                    </label>
+                    <button class="btn btn-primary btn-sm mt-2">Upload</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.stellar.min.js"></script>
+    <script src="js/jquery.fancybox.min.js"></script>
+    <script src="js/aos.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/jquery.timepicker.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        // For demo purposes, using a simple hardcoded username/password
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
+
+        // Handle login form submission
+        $('#loginForm').on('submit', function(e) {
+          e.preventDefault();
+          const username = $('#username').val();
+          const password = $('#password').val();
+
+          if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            // Hide login section and show admin dashboard
+            $('#loginSection').hide();
+            $('#adminDashboard').show();
+            $('#loginError').hide();
+          } else {
+            $('#loginError').show();
+          }
+        });
+
+        // Handle file input change
+        $('input[type="file"]').on('change', function(e) {
+          if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              $(this).closest('.card-body').find('.image-preview').attr('src', e.target.result);
+            }.bind(this);
+            reader.readAsDataURL(e.target.files[0]);
+          }
+        });
+
+        // Handle room updates
+        $('.room-card .btn-primary').on('click', function() {
+          const card = $(this).closest('.room-card');
+          const roomName = card.find('h3').text();
+          const description = card.find('textarea').val();
+          const price = card.find('.price-input').val();
+          const maxAdults = card.find('input[placeholder="Adults"]').val();
+          const maxChildren = card.find('input[placeholder="Children"]').val();
+
+          // Here you would typically make an API call to update the room details
+          alert(`Room "${roomName}" updated successfully!`);
+        });
+
+        // Handle price updates
+        $('#prices .btn-primary').on('click', function() {
+          const row = $(this).closest('tr');
+          const roomName = row.find('td:first').text();
+          const newPrice = row.find('.price-input').val();
+
+          // Here you would typically make an API call to update the price
+          alert(`Price for "${roomName}" updated to GH₵${newPrice}!`);
+        });
+
+        // Handle image uploads
+        $('#images .btn-primary').on('click', function() {
+          const card = $(this).closest('.card');
+          const roomName = card.find('.card-title').text();
+          const fileInput = card.find('input[type="file"]');
+
+          if (fileInput[0].files.length > 0) {
+            // Here you would typically make an API call to upload the image
+            alert(`Image for "${roomName}" uploaded successfully!`);
+          } else {
+            alert('Please select an image first.');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
