@@ -387,8 +387,10 @@
 
     <script>
       $(document).ready(function() {
-        // API base URL
-        const API_BASE_URL = 'http://localhost:3000';
+        // API base URL - will use production URL if available, otherwise localhost
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+          ? 'http://localhost:3000'
+          : 'https://tishahotel.onrender.com';
 
         // For demo purposes, using a simple hardcoded username/password
         const ADMIN_USERNAME = 'admin';
