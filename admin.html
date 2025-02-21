@@ -171,11 +171,11 @@
           <form id="loginForm">
             <div class="form-group">
               <label for="username">Username</label>
-              <input type="text" class="form-control" id="username" required>
+              <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
             </div>
             <div class="form-group">
               <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" required>
+              <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Login</button>
           </form>
@@ -387,6 +387,9 @@
 
     <script>
       $(document).ready(function() {
+        // API base URL
+        const API_BASE_URL = 'http://localhost:3000';
+
         // For demo purposes, using a simple hardcoded username/password
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'admin123';
@@ -421,35 +424,140 @@
         // Handle room updates
         $('.room-card .btn-primary').on('click', function() {
           const card = $(this).closest('.room-card');
-          const roomName = card.find('h3').text();
-          const description = card.find('textarea').val();
-          const price = card.find('.price-input').val();
-          const maxAdults = card.find('input[placeholder="Adults"]').val();
-          const maxChildren = card.find('input[placeholder="Children"]').val();
+          const roomName = card.find('h3').text().trim();
+          const description = card.find('textarea').val().trim();
+          const price = card.find('.price-input').val().trim();
+          const maxAdults = card.find('input[placeholder="Adults"]').val().trim();
+          const maxChildren = card.find('input[placeholder="Children"]').val().trim();
 
-          // Here you would typically make an API call to update the room details
-          alert(`Room "${roomName}" updated successfully!`);
+          console.log('Sending update for room:', {
+            roomName,
+            description,
+            price,
+            maxAdults,
+            maxChildren
+          });
+
+          // Make API call to update room
+          $.ajax({
+            url: `${API_BASE_URL}/api/updateRoom`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              roomName,
+              description,
+              price: parseInt(price),
+              maxAdults: parseInt(maxAdults),
+              maxChildren: parseInt(maxChildren)
+            }),
+            success: function(response) {
+              alert(`Room "${roomName}" updated successfully!`);
+            },
+            error: function(xhr, status, error) {
+              let errorMessage = 'Error updating room. Please try again.';
+              try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.error) {
+                  errorMessage = `Error: ${response.error}`;
+                }
+              } catch (e) {}
+              alert(errorMessage);
+              console.error('Error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+              });
+            }
+          });
         });
 
         // Handle price updates
         $('#prices .btn-primary').on('click', function() {
           const row = $(this).closest('tr');
-          const roomName = row.find('td:first').text();
-          const newPrice = row.find('.price-input').val();
+          const roomName = row.find('td:first').text().trim();
+          const price = row.find('.price-input').val().trim();
 
-          // Here you would typically make an API call to update the price
-          alert(`Price for "${roomName}" updated to GH₵${newPrice}!`);
+          console.log('Sending price update:', {
+            roomName,
+            price
+          });
+
+          // Make API call to update price
+          $.ajax({
+            url: `${API_BASE_URL}/api/updateRoom`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              roomName,
+              price: parseInt(price)
+            }),
+            success: function(response) {
+              alert(`Price for "${roomName}" updated successfully!`);
+              row.find('td:nth-child(2)').text(`GH₵${price}`);
+            },
+            error: function(xhr, status, error) {
+              let errorMessage = 'Error updating price. Please try again.';
+              try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.error) {
+                  errorMessage = `Error: ${response.error}`;
+                }
+              } catch (e) {}
+              alert(errorMessage);
+              console.error('Error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+              });
+            }
+          });
         });
 
         // Handle image uploads
         $('#images .btn-primary').on('click', function() {
           const card = $(this).closest('.card');
-          const roomName = card.find('.card-title').text();
-          const fileInput = card.find('input[type="file"]');
+          const roomName = card.find('.card-title').text().trim();
+          const fileInput = card.find('input[type="file"]')[0];
 
-          if (fileInput[0].files.length > 0) {
-            // Here you would typically make an API call to upload the image
-            alert(`Image for "${roomName}" uploaded successfully!`);
+          if (fileInput.files.length > 0) {
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('roomName', roomName);
+
+            console.log('Uploading image for room:', roomName);
+
+            $.ajax({
+              url: `${API_BASE_URL}/api/uploadImage`,
+              method: 'POST',
+              data: formData,
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                alert(`Image for "${roomName}" uploaded successfully!`);
+                // Refresh the image preview with a timestamp to prevent caching
+                const imgPreview = card.find('.image-preview');
+                const currentSrc = imgPreview.attr('src').split('?')[0];
+                imgPreview.attr('src', currentSrc + '?t=' + new Date().getTime());
+              },
+              error: function(xhr, status, error) {
+                let errorMessage = 'Error uploading image. Please try again.';
+                try {
+                  const response = JSON.parse(xhr.responseText);
+                  if (response.error) {
+                    errorMessage = `Error: ${response.error}`;
+                  }
+                } catch (e) {}
+                alert(errorMessage);
+                console.error('Error details:', {
+                  status: xhr.status,
+                  statusText: xhr.statusText,
+                  responseText: xhr.responseText,
+                  error: error
+                });
+              }
+            });
           } else {
             alert('Please select an image first.');
           }
