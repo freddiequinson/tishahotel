@@ -1,0 +1,20 @@
+{
+  "junior": {
+    "name": "Junior Suite",
+    "price": 250,
+    "maxAdults": 2,
+    "maxChildren": 1
+  },
+  "standard": {
+    "name": "Standard Room",
+    "price": 280,
+    "maxAdults": 2,
+    "maxChildren": 1
+  },
+  "master": {
+    "name": "Master Room",
+    "price": 300,
+    "maxAdults": 3,
+    "maxChildren": 2
+  }
+}
