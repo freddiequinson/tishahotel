@@ -1,0 +1,24 @@
+{
+  "bookings": [
+    {
+      "bookingNumber": "TH250221-4377",
+      "firstName": "fred",
+      "lastName": "agyare",
+      "email": "",
+      "phone": "0241293754",
+      "checkinDate": "25 February, 2025",
+      "checkoutDate": "28 February, 2025",
+      "adults": 2,
+      "children": 0,
+      "roomType": "junior",
+      "nights": 3,
+      "numberOfRooms": 1,
+      "basePrice": 250,
+      "totalAmount": 750,
+      "roomName": "Junior Suite",
+      "createdAt": "2025-02-21T13:31:58.679Z",
+      "status": "confirmed",
+      "updatedAt": "2025-02-21T13:35:43.964Z"
+    }
+  ]
+}

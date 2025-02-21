@@ -187,14 +187,17 @@
     </section>
 
     <!-- Admin Dashboard -->
-    <section class="section admin-section" id="adminDashboard">
+    <section class="section admin-section" id="adminDashboard" style="display: none;">
       <div class="container">
         <h2 class="mb-4">Admin Dashboard</h2>
         
         <!-- Navigation Tabs -->
-        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
           <li class="nav-item">
             <a class="nav-link active" id="rooms-tab" data-toggle="tab" href="#rooms" role="tab">Rooms</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="bookings-tab" data-toggle="tab" href="#bookings" role="tab">Bookings</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="prices-tab" data-toggle="tab" href="#prices" role="tab">Prices</a>
@@ -285,6 +288,50 @@
                   </div>
                 </div>
                 <button class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bookings Tab -->
+          <div class="tab-pane fade" id="bookings" role="tabpanel">
+            <div class="row mb-4">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Recent Bookings</h4>
+                    <div class="float-right">
+                      <select id="bookingFilter" class="form-control">
+                        <option value="all">All Bookings</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="checked-in">Checked In</option>
+                        <option value="checked-out">Checked Out</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover" id="bookingsTable">
+                        <thead>
+                          <tr>
+                            <th>Booking #</th>
+                            <th>Guest Name</th>
+                            <th>Room</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Bookings will be loaded here -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -564,6 +611,90 @@
             alert('Please select an image first.');
           }
         });
+
+        // Load bookings
+        function loadBookings(filter = 'all') {
+          $.ajax({
+            url: `${API_BASE_URL}/api/bookings`,
+            method: 'GET',
+            success: function(response) {
+              const bookings = response.bookings.filter(booking => 
+                filter === 'all' || booking.status === filter
+              );
+              
+              const tbody = $('#bookingsTable tbody');
+              tbody.empty();
+              
+              bookings.forEach(booking => {
+                const row = `
+                  <tr>
+                    <td>${booking.bookingNumber}</td>
+                    <td>${booking.firstName} ${booking.lastName}</td>
+                    <td>${booking.roomName} (${booking.numberOfRooms} room${booking.numberOfRooms > 1 ? 's' : ''})</td>
+                    <td>${booking.checkinDate}</td>
+                    <td>${booking.checkoutDate}</td>
+                    <td>
+                      <select class="form-control status-select" data-booking="${booking.bookingNumber}">
+                        <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                        <option value="checked-in" ${booking.status === 'checked-in' ? 'selected' : ''}>Checked In</option>
+                        <option value="checked-out" ${booking.status === 'checked-out' ? 'selected' : ''}>Checked Out</option>
+                        <option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                      </select>
+                    </td>
+                    <td>GH₵${booking.totalAmount}</td>
+                    <td>
+                      <button class="btn btn-sm btn-info view-booking" data-booking="${booking.bookingNumber}">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+                tbody.append(row);
+              });
+            },
+            error: function(xhr, status, error) {
+              console.error('Error loading bookings:', error);
+              alert('Error loading bookings. Please try again.');
+            }
+          });
+        }
+
+        // Handle booking filter change
+        $('#bookingFilter').on('change', function() {
+          loadBookings($(this).val());
+        });
+
+        // Handle status change
+        $(document).on('change', '.status-select', function() {
+          const bookingNumber = $(this).data('booking');
+          const newStatus = $(this).val();
+
+          $.ajax({
+            url: `${API_BASE_URL}/api/bookings/${bookingNumber}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ status: newStatus }),
+            success: function(response) {
+              console.log('Status updated:', response);
+            },
+            error: function(xhr, status, error) {
+              console.error('Error updating status:', error);
+              alert('Error updating booking status. Please try again.');
+            }
+          });
+        });
+
+        // Load bookings when switching to bookings tab
+        $('#bookings-tab').on('shown.bs.tab', function() {
+          loadBookings($('#bookingFilter').val());
+        });
+
+        // Initial load of bookings
+        if (window.location.hash === '#bookings') {
+          $('#bookings-tab').tab('show');
+          loadBookings();
+        }
       });
     </script>
   </body>

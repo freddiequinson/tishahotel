@@ -809,61 +809,53 @@
         }
 
         // Form submission
-        $('#booking-form').on('submit', function(e) {
+        $('#reservation-form').on('submit', function(e) {
           e.preventDefault();
           
-          // Get form values
-          var formData = {
-            firstName: $('#first_name').val().trim(),
-            lastName: $('#last_name').val().trim(),
-            checkinDate: $('#checkin_date').val().trim(),
-            checkoutDate: $('#checkout_date').val().trim(),
+          // Get form data
+          const formData = {
+            bookingNumber: generateBookingNumber(),
+            firstName: $('#first_name').val(),
+            lastName: $('#last_name').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            checkinDate: $('#checkin_date').val(),
+            checkoutDate: $('#checkout_date').val(),
             adults: parseInt($('#adults').val()),
             children: parseInt($('#children').val()),
-            roomType: $('#room_type').val().trim(),
-            phone: $('#phone').val().trim(),
-            email: $('#email').val().trim()
+            roomType: $('#room_type').val()
           };
-
-          // Check if required fields are filled
-          if (!formData.firstName || !formData.lastName || !formData.checkinDate || 
-              !formData.checkoutDate || !formData.adults || !formData.roomType || 
-              !formData.phone || formData.children === undefined) {
-            $('#errorMessage').text("Please fill in all required fields marked with *");
-            showPopup($('#errorPopup'));
-            return;
-          }
-
-          var selectedCheckin = new Date(formData.checkinDate);
-          selectedCheckin.setHours(0, 0, 0, 0);
-          
-          if (selectedCheckin < today) {
-            $('#errorMessage').text("Please select a check-in date from today onwards");
-            showPopup($('#errorPopup'));
-            return;
-          }
-
-          if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            $('#errorMessage').text("Please enter a valid email address");
-            showPopup($('#errorPopup'));
-            return;
-          }
-
-          if (!/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
-            $('#errorMessage').text("Please enter a valid phone number");
-            showPopup($('#errorPopup'));
-            return;
-          }
 
           // Calculate booking details
           const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
           const bookingDetails = calculateBooking(formData.roomType, formData.adults, formData.children, nights);
 
-          // Generate booking number
-          const bookingNumber = generateBookingNumber();
+          // Add booking details to form data
+          formData.nights = nights;
+          formData.numberOfRooms = bookingDetails.numberOfRooms;
+          formData.basePrice = bookingDetails.basePrice;
+          formData.totalAmount = bookingDetails.totalPrice;
+          formData.roomName = bookingDetails.roomName;
 
-          // Show receipt
-          showReceipt(bookingDetails, { ...formData, bookingNumber });
+          // Save booking to server
+          $.ajax({
+            url: window.location.hostname === 'localhost' 
+              ? 'http://localhost:3000/api/bookings'
+              : 'https://tishahotel.onrender.com/api/bookings',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+              console.log('Booking saved:', response);
+              showReceipt(bookingDetails, formData);
+              $('#availabilityPopup').hide();
+              $('#receiptPopup').show();
+            },
+            error: function(xhr, status, error) {
+              console.error('Error saving booking:', error);
+              alert('There was an error saving your booking. Please try again.');
+            }
+          });
         });
 
         // Handle booking confirmation

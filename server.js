@@ -206,6 +206,57 @@ app.post('/api/uploadImage', upload.single('image'), (req, res) => {
   }
 });
 
+// Booking management endpoints
+app.post('/api/bookings', (req, res) => {
+  try {
+    const bookingData = req.body;
+    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
+    
+    // Add timestamp and status
+    bookingData.createdAt = new Date().toISOString();
+    bookingData.status = 'pending';
+    
+    bookings.bookings.push(bookingData);
+    fs.writeFileSync('bookings.json', JSON.stringify(bookings, null, 2));
+    
+    res.json({ success: true, booking: bookingData });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({ error: 'Failed to create booking' });
+  }
+});
+
+app.get('/api/bookings', (req, res) => {
+  try {
+    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error reading bookings:', error);
+    res.status(500).json({ error: 'Failed to read bookings' });
+  }
+});
+
+app.put('/api/bookings/:bookingNumber', (req, res) => {
+  try {
+    const { bookingNumber } = req.params;
+    const { status } = req.body;
+    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
+    
+    const booking = bookings.bookings.find(b => b.bookingNumber === bookingNumber);
+    if (booking) {
+      booking.status = status;
+      booking.updatedAt = new Date().toISOString();
+      fs.writeFileSync('bookings.json', JSON.stringify(bookings, null, 2));
+      res.json({ success: true, booking });
+    } else {
+      res.status(404).json({ error: 'Booking not found' });
+    }
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    res.status(500).json({ error: 'Failed to update booking' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
