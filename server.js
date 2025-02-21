@@ -124,46 +124,64 @@ function updateHtmlFile(filePath, roomUpdates) {
 }
 
 // API Endpoints
+app.get('/api/roomConfig', (req, res) => {
+  try {
+    const roomConfig = JSON.parse(fs.readFileSync('room-config.json', 'utf8'));
+    res.json(roomConfig);
+  } catch (error) {
+    console.error('Error reading room config:', error);
+    res.status(500).json({ error: 'Failed to read room configuration' });
+  }
+});
+
 app.post('/api/updateRoom', (req, res) => {
   try {
-    console.log('Received update request:', req.body);
-    
     const { roomName, description, price } = req.body;
-    if (!roomName) {
-      throw new Error('Room name is required');
+    
+    // Update room-config.json
+    const roomConfig = JSON.parse(fs.readFileSync('room-config.json', 'utf8'));
+    const roomKey = Object.keys(roomConfig).find(key => 
+      roomConfig[key].name.toLowerCase() === roomName.toLowerCase()
+    );
+    
+    if (roomKey && price) {
+      roomConfig[roomKey].price = parseInt(price);
+      fs.writeFileSync('room-config.json', JSON.stringify(roomConfig, null, 2));
     }
 
-    const updates = {
-      [roomName]: {
-        description: description || undefined,
-        price: price || undefined
-      }
-    };
+    // Update HTML files
+    ['index.html', 'rooms.html'].forEach(filename => {
+      if (fs.existsSync(filename)) {
+        let content = fs.readFileSync(filename, 'utf8');
+        const $ = cheerio.load(content);
 
-    // Update all relevant HTML files
-    const files = ['index.html', 'rooms.html'];
-    const results = files.map(file => {
-      try {
-        return updateHtmlFile(file, updates);
-      } catch (error) {
-        console.error(`Error updating ${file}:`, error);
-        return false;
+        // Find the room section
+        $('h2').each(function() {
+          if ($(this).text().trim() === roomName) {
+            // Update price
+            if (price) {
+              $(this).next('.text-uppercase').text(`GH₵${price} / per night`);
+            }
+            
+            // Update description
+            if (description) {
+              const amenitiesDiv = $(this).parent().find('.room-amenities');
+              const icons = amenitiesDiv.find('span').clone(); // Save icons
+              amenitiesDiv.empty().append(icons); // Clear and restore icons
+              amenitiesDiv.append(`<p class="mt-3">${description}</p>`);
+            }
+          }
+        });
+
+        // Save the file
+        fs.writeFileSync(filename, $.html());
       }
     });
 
-    if (results.some(result => result === true)) {
-      res.json({ success: true, message: 'Room updated successfully' });
-    } else {
-      throw new Error('Failed to update any files');
-    }
-
+    res.json({ success: true });
   } catch (error) {
-    console.error('Error in /api/updateRoom:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error updating room',
-      error: error.message 
-    });
+    console.error('Error updating room:', error);
+    res.status(500).json({ error: 'Failed to update room' });
   }
 });
 

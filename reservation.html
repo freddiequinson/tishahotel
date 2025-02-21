@@ -585,27 +585,43 @@
 
     <script>
       $(document).ready(function(){
-        // Room configurations
-        const ROOM_CONFIG = {
-          junior: {
-            name: 'Junior Suite',
-            price: 250,
-            maxAdults: 2,
-            maxChildren: 1
+        // Load room configuration from server
+        let ROOM_CONFIG = {};
+        
+        $.ajax({
+          url: window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api/roomConfig'
+            : 'https://tishahotel.onrender.com/api/roomConfig',
+          method: 'GET',
+          success: function(config) {
+            ROOM_CONFIG = config;
+            console.log('Room config loaded:', ROOM_CONFIG);
           },
-          standard: {
-            name: 'Standard Room',
-            price: 280,
-            maxAdults: 2,
-            maxChildren: 2
-          },
-          master: {
-            name: 'Master Room',
-            price: 300,
-            maxAdults: 3,
-            maxChildren: 2
+          error: function(xhr, status, error) {
+            console.error('Error loading room config:', error);
+            // Fallback to default configuration if server is unavailable
+            ROOM_CONFIG = {
+              junior: {
+                name: 'Junior Suite',
+                price: 255,
+                maxAdults: 2,
+                maxChildren: 1
+              },
+              standard: {
+                name: 'Standard Room',
+                price: 280,
+                maxAdults: 2,
+                maxChildren: 1
+              },
+              master: {
+                name: 'Master Room',
+                price: 300,
+                maxAdults: 3,
+                maxChildren: 2
+              }
+            };
           }
-        };
+        });
 
         // Initialize date pickers with validation
         var today = new Date();
@@ -770,7 +786,6 @@
           // Add payment details
           doc.setFontSize(16);
           doc.text("Payment Details", 20, 180);
-          doc.setFontSize(12);
           const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
           doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 190);
           doc.text(`Total Amount: ${formatCurrencyPDF(bookingData.totalAmount)}`, 20, 200);
