@@ -257,6 +257,125 @@ app.put('/api/bookings/:bookingNumber', (req, res) => {
   }
 });
 
+// Initialize default admin user from environment variables
+const DEFAULT_ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+// In-memory store for users (will reset on server restart)
+let users = [{
+  id: 'admin',
+  username: DEFAULT_ADMIN_USERNAME,
+  password: DEFAULT_ADMIN_PASSWORD,
+  role: 'admin',
+  name: 'Administrator',
+  email: 'admin@tishahotel.com',
+  createdAt: new Date().toISOString()
+}];
+
+// User Management Endpoints
+app.get('/api/users', (req, res) => {
+  try {
+    res.json({ users });
+  } catch (error) {
+    console.error('Error reading users:', error);
+    res.status(500).json({ error: 'Failed to read users' });
+  }
+});
+
+app.post('/api/users', (req, res) => {
+  try {
+    const { username, password, role, name, email } = req.body;
+    
+    // Validate required fields
+    if (!username || !password || !role || !name || !email) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Check if username already exists
+    if (users.some(user => user.username === username)) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // Create new user
+    const newUser = {
+      id: Date.now().toString(),
+      username,
+      password,
+      role,
+      name,
+      email,
+      createdAt: new Date().toISOString()
+    };
+
+    // Add to users array
+    users.push(newUser);
+
+    res.json({ success: true, user: newUser });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Find user index
+    const userIndex = users.findIndex(user => user.id === userId);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Prevent deleting the default admin user
+    if (users[userIndex].username === DEFAULT_ADMIN_USERNAME) {
+      return res.status(400).json({ error: 'Cannot delete the default admin user' });
+    }
+
+    // Prevent deleting the last admin user
+    const isAdmin = users[userIndex].role === 'admin';
+    const remainingAdmins = users.filter(user => 
+      user.role === 'admin' && user.id !== userId
+    ).length;
+
+    if (isAdmin && remainingAdmins === 0) {
+      return res.status(400).json({ error: 'Cannot delete the last admin user' });
+    }
+
+    // Remove user
+    users.splice(userIndex, 1);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+app.post('/api/login', (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Find user with matching credentials
+    const user = users.find(u => 
+      u.username === username && u.password === password
+    );
+    
+    if (user) {
+      // Create safe user object without password
+      const safeUser = { ...user };
+      delete safeUser.password;
+      res.json({ success: true, user: safeUser });
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);

@@ -887,12 +887,12 @@
           <div class="tab-pane fade" id="users" role="tabpanel">
             <div class="row mb-4">
               <div class="col-md-12">
+                <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addUserModal">
+                  <i class="fa fa-plus"></i> Add New User
+                </button>
                 <div class="card">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>User Management</h4>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
-                      <i class="fa fa-plus"></i> Add User
-                    </button>
+                  <div class="card-header">
+                    <h5 class="mb-0">User Management</h5>
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
@@ -903,12 +903,11 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Created</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <!-- Users will be loaded here -->
+                          <!-- User rows will be dynamically added here -->
                         </tbody>
                       </table>
                     </div>
@@ -934,32 +933,31 @@
           <div class="modal-body">
             <form id="addUserForm">
               <div class="form-group">
-                <label>Username</label>
-                <input type="text" class="form-control" name="username" required>
+                <label for="newUsername">Username</label>
+                <input type="text" class="form-control" id="newUsername" required>
               </div>
               <div class="form-group">
-                <label>Password</label>
+                <label for="newPassword">Password</label>
                 <div class="password-field">
-                  <input type="password" class="form-control" name="password" required>
+                  <input type="password" class="form-control" id="newPassword" required>
                   <button type="button" class="toggle-password">
                     <i class="fa fa-eye"></i>
                   </button>
                 </div>
               </div>
               <div class="form-group">
-                <label>Name</label>
-                <input type="text" class="form-control" name="name" required>
+                <label for="newName">Full Name</label>
+                <input type="text" class="form-control" id="newName" required>
               </div>
               <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-control" name="email" required>
+                <label for="newEmail">Email</label>
+                <input type="email" class="form-control" id="newEmail" required>
               </div>
               <div class="form-group">
-                <label>Role</label>
-                <select class="form-control" name="role" required>
+                <label for="newRole">Role</label>
+                <select class="form-control" id="newRole" required>
+                  <option value="user">User</option>
                   <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                  <option value="staff">Staff</option>
                 </select>
               </div>
             </form>
@@ -967,54 +965,6 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-primary" id="saveUserBtn">Save User</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Edit User Modal -->
-    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit User</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="editUserForm">
-              <input type="hidden" name="userId">
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" class="form-control" name="name" required>
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-control" name="email" required>
-              </div>
-              <div class="form-group">
-                <label>Role</label>
-                <select class="form-control" name="role" required>
-                  <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                  <option value="staff">Staff</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <div class="password-field">
-                  <input type="password" class="form-control" name="password">
-                  <button type="button" class="toggle-password">
-                    <i class="fa fa-eye"></i>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="updateUserBtn">Update User</button>
           </div>
         </div>
       </div>
@@ -1235,18 +1185,15 @@
                   <tr>
                     <td>${user.username}</td>
                     <td>${user.name}</td>
-                    <td class="mobile-hide">${user.email}</td>
-                    <td>${user.role}</td>
-                    <td class="mobile-hide">${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-${user.role === 'admin' ? 'primary' : 'secondary'}">${user.role}</span></td>
                     <td>
-                      <button class="btn btn-sm btn-info edit-user" data-user='${JSON.stringify(user)}'>
+                      <button class="btn btn-sm btn-warning edit-user" data-id="${user.id}">
                         <i class="fa fa-edit"></i>
                       </button>
-                      ${user.id !== 'admin' ? `
-                        <button class="btn btn-sm btn-danger delete-user" data-user-id="${user.id}">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      ` : ''}
+                      <button class="btn btn-sm btn-danger delete-user" data-id="${user.id}">
+                        <i class="fa fa-trash"></i>
+                      </button>
                     </td>
                   </tr>
                 `;
@@ -1256,22 +1203,32 @@
             },
             error: function(xhr, status, error) {
               console.error('Error loading users:', error);
-              alert('Error loading users. Please try again.');
+              alert('Failed to load users. Please try again.');
               hideLoading(usersTable.closest('.card-body'));
             }
           });
         }
 
         // Add new user
-        $('#saveUserBtn').on('click', function() {
-          const form = $('#addUserForm');
+        $('#saveUserBtn').click(function() {
           const userData = {
-            username: form.find('[name="username"]').val(),
-            password: form.find('[name="password"]').val(),
-            name: form.find('[name="name"]').val(),
-            email: form.find('[name="email"]').val(),
-            role: form.find('[name="role"]').val()
+            username: $('#newUsername').val().trim(),
+            password: $('#newPassword').val().trim(),
+            name: $('#newName').val().trim(),
+            email: $('#newEmail').val().trim(),
+            role: $('#newRole').val()
           };
+
+          // Validate inputs
+          if (!userData.username || !userData.password || !userData.name || !userData.email) {
+            alert('Please fill in all required fields');
+            return;
+          }
+
+          // Show loading state
+          const btn = $(this);
+          const originalText = btn.text();
+          btn.prop('disabled', true).text('Saving...');
 
           $.ajax({
             url: `${API_BASE_URL}/api/users`,
@@ -1280,95 +1237,45 @@
             data: JSON.stringify(userData),
             success: function(response) {
               $('#addUserModal').modal('hide');
-              form[0].reset();
-              loadUsers();
+              $('#addUserForm')[0].reset();
+              loadUsers(); // Reload the users table
               alert('User added successfully!');
             },
             error: function(xhr, status, error) {
               console.error('Error adding user:', error);
-              alert(xhr.responseJSON?.error || 'Error adding user. Please try again.');
-            }
-          });
-        });
-
-        // Edit user
-        $(document).on('click', '.edit-user', function() {
-          const user = $(this).data('user');
-          const form = $('#editUserForm');
-          
-          form.find('[name="userId"]').val(user.id);
-          form.find('[name="name"]').val(user.name);
-          form.find('[name="email"]').val(user.email);
-          form.find('[name="role"]').val(user.role);
-          form.find('[name="password"]').val('');
-          
-          $('#editUserModal').modal('show');
-        });
-
-        // Update user
-        $('#updateUserBtn').on('click', function() {
-          const form = $('#editUserForm');
-          const userId = form.find('[name="userId"]').val();
-          const userData = {
-            name: form.find('[name="name"]').val(),
-            email: form.find('[name="email"]').val(),
-            role: form.find('[name="role"]').val()
-          };
-
-          const password = form.find('[name="password"]').val();
-          if (password) {
-            userData.password = password;
-          }
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/users/${userId}`,
-            method: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify(userData),
-            success: function(response) {
-              $('#editUserModal').modal('hide');
-              form[0].reset();
-              loadUsers();
-              alert('User updated successfully!');
+              const errorMessage = xhr.responseJSON?.error || 'Failed to add user. Please try again.';
+              alert(errorMessage);
             },
-            error: function(xhr, status, error) {
-              console.error('Error updating user:', error);
-              alert(xhr.responseJSON?.error || 'Error updating user. Please try again.');
+            complete: function() {
+              btn.prop('disabled', false).text(originalText);
             }
           });
         });
 
         // Delete user
         $(document).on('click', '.delete-user', function() {
-          if (!confirm('Are you sure you want to delete this user?')) {
-            return;
+          if (confirm('Are you sure you want to delete this user?')) {
+            const userId = $(this).data('id');
+            
+            $.ajax({
+              url: `${API_BASE_URL}/api/users/${userId}`,
+              method: 'DELETE',
+              success: function(response) {
+                loadUsers(); // Reload the users table
+                alert('User deleted successfully!');
+              },
+              error: function(xhr, status, error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user. Please try again.');
+              }
+            });
           }
-
-          const userId = $(this).data('user-id');
-          $.ajax({
-            url: `${API_BASE_URL}/api/users/${userId}`,
-            method: 'DELETE',
-            success: function(response) {
-              loadUsers();
-              alert('User deleted successfully!');
-            },
-            error: function(xhr, status, error) {
-              console.error('Error deleting user:', error);
-              alert(xhr.responseJSON?.error || 'Error deleting user. Please try again.');
-            }
-          });
         });
 
-        // Load users when switching to users tab
-        $('#users-tab').on('shown.bs.tab', function() {
-          loadUsers();
+        // Clear form when modal is closed
+        $('#addUserModal').on('hidden.bs.modal', function() {
+          $('#addUserForm')[0].reset();
         });
-
-        // Initial load of users if on users tab
-        if (window.location.hash === '#users') {
-          $('#users-tab').tab('show');
-          loadUsers();
-        }
 
         // Add loading states
         function showLoading(element) {
