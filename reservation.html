@@ -411,6 +411,7 @@
                       <div class="icon"><span class="icon-chevron-down"></span></div>
                       <select name="room_type" id="room_type" class="form-control" required>
                         <option value="">Select room type...</option>
+                        <option value="junior">Junior Suite</option>
                         <option value="standard">Standard Room</option>
                         <option value="master">Master Room</option>
                       </select>
@@ -586,17 +587,23 @@
       $(document).ready(function(){
         // Room configurations
         const ROOM_CONFIG = {
-          standard: {
-            price: 220,
+          junior: {
+            name: 'Junior Suite',
+            price: 250,
             maxAdults: 2,
-            maxChildren: 1,
-            name: 'Standard Room'
+            maxChildren: 1
+          },
+          standard: {
+            name: 'Standard Room',
+            price: 280,
+            maxAdults: 2,
+            maxChildren: 2
           },
           master: {
-            price: 270,
-            maxAdults: 4,
-            maxChildren: 2,
-            name: 'Master Room'
+            name: 'Master Room',
+            price: 300,
+            maxAdults: 3,
+            maxChildren: 2
           }
         };
 
