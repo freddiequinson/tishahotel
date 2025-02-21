@@ -17,14 +17,247 @@
     <link rel="stylesheet" href="css/style.css">
 
     <style>
+      body {
+        padding-top: 80px;
+      }
+
+      .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 15px 0;
+      }
+
+      .site-logo {
+        text-align: center;
+      }
+
+      .site-logo a {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--primary-color);
+      }
+
+      .site-logo img {
+        height: 50px;
+        margin-right: 15px;
+      }
+
+      .site-logo span {
+        font-size: 1.5rem;
+        font-weight: 500;
+      }
+
+      /* Login form styles */
+      #loginSection {
+        display: block;
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .login-form {
+        width: 100%;
+        max-width: 400px;
+        padding: 30px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .login-form h2 {
+        margin-bottom: 30px;
+        text-align: center;
+        color: var(--primary-color);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      /* Admin dashboard styles */
       .admin-section {
         display: none;
+        padding: 20px;
+      }
+
+      .tab-content {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      /* Navigation tabs */
+      .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 25px;
+      }
+
+      .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: #666;
+        padding: 10px 20px;
+        margin-bottom: -2px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-tabs .nav-link:hover {
+        border-color: transparent;
+        color: var(--primary-color);
+      }
+
+      .nav-tabs .nav-link.active {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      /* Center the login form */
+      #loginSection {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 80px); /* Subtract header height */
+        padding: 20px;
       }
       
-      .admin-section.active {
+      .login-form {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 30px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .login-form h2 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: var(--primary-color);
+      }
+
+      /* Main content area */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Navigation adjustments */
+      .site-navbar {
+        position: fixed;
+        right: 0;
+        top: 80px; /* Start below header */
+        width: 300px;
+        height: calc(100vh - 80px); /* Subtract header height */
+        background: #fff;
+        padding: 20px;
+        transform: translateX(100%);
+        transition: 0.3s all ease;
+        z-index: 999;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      }
+
+      /* Updated navbar styles */
+      .site-navbar {
+        position: fixed;
+        right: 0;
+        top: 80px;
+        width: 300px;
+        height: calc(100vh - 80px);
+        background: #fff;
+        padding: 20px;
+        transform: translateX(100%);
+        transition: 0.3s all ease;
+        z-index: 1000;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      }
+
+      .site-navbar.active {
+        transform: translateX(0%);
+      }
+
+      .site-navbar .menu {
+        padding: 0;
+        margin: 0;
+      }
+
+      .site-navbar .menu li {
+        list-style: none;
+        margin: 10px 0;
+      }
+
+      .site-navbar .menu li a {
+        color: #333;
+        text-decoration: none;
+        font-size: 16px;
         display: block;
+        padding: 10px 15px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
       }
-      
+
+      .site-navbar .menu li a:hover {
+        background: #f8f9fa;
+        color: var(--primary-color);
+      }
+
+      /* Updated toggle button styles */
+      .site-menu-toggle {
+        float: right;
+        width: 40px;
+        height: 40px;
+        position: relative;
+        margin: 0px auto;
+        z-index: 1001;
+        cursor: pointer;
+        background: #fff;
+        border-radius: 4px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      .site-menu-toggle:hover {
+        background: #f8f9fa;
+      }
+
+      .site-menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: #333;
+        margin-bottom: 4px;
+        transition: all 0.3s ease;
+      }
+
+      .site-menu-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .site-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .site-menu-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -5px);
+      }
+
       .room-card {
         border: 1px solid #ddd;
         padding: 15px;
@@ -122,42 +355,263 @@
           font-size: 1rem;
         }
       }
+
+      /* Responsive styles */
+      @media (max-width: 768px) {
+        .table-responsive {
+          font-size: 14px;
+        }
+        
+        .btn-sm {
+          padding: 0.2rem 0.4rem;
+          font-size: 12px;
+        }
+
+        .card-header {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .card-header h4 {
+          margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs .nav-item {
+          float: none;
+          display: inline-block;
+        }
+
+        .modal-dialog {
+          margin: 0.5rem;
+        }
+
+        .tab-pane {
+          padding: 15px 0;
+        }
+
+        .table th, .table td {
+          padding: 0.5rem;
+        }
+
+        /* Hide less important columns on mobile */
+        @media (max-width: 576px) {
+          .table .mobile-hide {
+            display: none;
+          }
+        }
+
+        /* Stack form elements on mobile */
+        .form-row {
+          flex-direction: column;
+        }
+
+        .form-row > .col,
+        .form-row > [class*="col-"] {
+          padding: 0;
+          margin-bottom: 1rem;
+        }
+      }
+
+      /* General improvements */
+      .section {
+        padding: 2rem 0;
+      }
+
+      .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+      }
+
+      .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding: 1rem;
+      }
+
+      .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+      }
+
+      .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.02);
+      }
+
+      .btn {
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .nav-tabs .nav-link {
+        border-radius: 4px 4px 0 0;
+      }
+
+      .nav-tabs .nav-link.active {
+        font-weight: 500;
+        border-color: #dee2e6 #dee2e6 #fff;
+      }
+
+      /* Welcome message styles */
+      .welcome-message {
+        background: #fff;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .welcome-message h3 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+
+      .welcome-message p {
+        color: #666;
+        margin-bottom: 0;
+      }
+
+      /* Loading states */
+      .loading {
+        position: relative;
+        min-height: 200px;
+      }
+
+      .loading::after {
+        content: 'Loading...';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.2rem;
+        color: #6c757d;
+      }
+
+      /* Improved form styling */
+      .form-control {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+      }
+
+      .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+      }
+
+      /* Modal improvements */
+      .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+      }
+
+      .modal-header {
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .modal-footer {
+        background-color: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+      }
+
+      /* Status badges */
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .status-pending {
+        background-color: #ffeeba;
+        color: #856404;
+      }
+
+      .status-confirmed {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      /* Improved table responsiveness */
+      .table-responsive {
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      /* Sticky header for tables */
+      .table-sticky-header {
+        height: calc(100vh - 300px);
+        overflow-y: auto;
+      }
+
+      .table-sticky-header thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 1;
+      }
+
+      /* Password input field styles */
+      .password-field {
+        position: relative;
+      }
+
+      .password-field .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        padding: 0;
+        color: #666;
+        cursor: pointer;
+        z-index: 10;
+      }
+
+      .password-field .toggle-password:hover {
+        color: var(--primary-color);
+      }
+
+      .password-field .toggle-password:focus {
+        outline: none;
+      }
+
+      .password-field input[type="password"],
+      .password-field input[type="text"] {
+        padding-right: 35px;
+      }
     </style>
   </head>
   <body>
     <header class="site-header js-site-header">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-6 col-lg-4 site-logo" data-aos="fade">
+          <div class="col-12 site-logo" data-aos="fade">
             <a href="index.html">
               <img src="assets/hotellogo.jpg" alt="Tisha Hotel Logo">
-              <span>Tisha Hotel</span>
+              <span>Tisha Hotel Admin</span>
             </a>
-          </div>
-          <div class="col-6 col-lg-8">
-            <div class="site-menu-toggle js-site-menu-toggle" data-aos="fade">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-
-            <div class="site-navbar js-site-navbar">
-              <nav role="navigation">
-                <div class="container">
-                  <div class="row full-height align-items-center">
-                    <div class="col-md-6 mx-auto">
-                      <ul class="list-unstyled menu">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="rooms.html">Rooms</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                        <li><a href="reservation.html">Reservation</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </nav>
-            </div>
           </div>
         </div>
       </div>
@@ -165,23 +619,26 @@
 
     <!-- Login Section -->
     <section class="section" id="loginSection">
-      <div class="container">
-        <div class="login-form">
-          <h2 class="text-center mb-4">Admin Login</h2>
-          <form id="loginForm">
-            <div class="form-group">
-              <label for="username">Username</label>
-              <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
-          </form>
-          <div class="alert alert-danger" id="loginError">
-            Invalid username or password
+      <div class="login-form">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" required>
           </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-field">
+              <input type="password" class="form-control" id="password" required>
+              <button type="button" class="toggle-password">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block mt-4">Login</button>
+        </form>
+        <div class="alert alert-danger mt-3" role="alert" style="display: none;">
+          Invalid username or password
         </div>
       </div>
     </section>
@@ -189,6 +646,12 @@
     <!-- Admin Dashboard -->
     <section class="section admin-section" id="adminDashboard" style="display: none;">
       <div class="container">
+        <!-- Welcome Message -->
+        <div class="welcome-message" style="display: none;">
+          <h3>Welcome back, Admin!</h3>
+          <p>You are now logged into the Tisha Hotel Admin Dashboard. Here you can manage bookings, rooms, and user accounts.</p>
+        </div>
+
         <h2 class="mb-4">Admin Dashboard</h2>
         
         <!-- Navigation Tabs -->
@@ -204,6 +667,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab">Images</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab">Users</a>
           </li>
         </ul>
 
@@ -416,9 +882,143 @@
               </div>
             </div>
           </div>
+
+          <!-- Users Tab -->
+          <div class="tab-pane fade" id="users" role="tabpanel">
+            <div class="row mb-4">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>User Management</h4>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
+                      <i class="fa fa-plus"></i> Add User
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover" id="usersTable">
+                        <thead>
+                          <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Users will be loaded here -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New User</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="addUserForm">
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" name="username" required>
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <div class="password-field">
+                  <input type="password" class="form-control" name="password" required>
+                  <button type="button" class="toggle-password">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" name="name" required>
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" name="email" required>
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <select class="form-control" name="role" required>
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="staff">Staff</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveUserBtn">Save User</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit User</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="editUserForm">
+              <input type="hidden" name="userId">
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" name="name" required>
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" name="email" required>
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <select class="form-control" name="role" required>
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="staff">Staff</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>New Password (leave blank to keep current)</label>
+                <div class="password-field">
+                  <input type="password" class="form-control" name="password">
+                  <button type="button" class="toggle-password">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="updateUserBtn">Update User</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
@@ -434,196 +1034,116 @@
 
     <script>
       $(document).ready(function() {
-        // API base URL - will use production URL if available, otherwise localhost
-        const API_BASE_URL = window.location.hostname === 'localhost' 
+        // Clear any existing login state on page load
+        localStorage.removeItem('adminLoggedIn');
+        
+        // Make sure login section is visible and admin dashboard is hidden initially
+        $('#loginSection').show();
+        $('#adminDashboard, .welcome-message').hide();
+
+        // Check if we're on localhost
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Set API base URL
+        const API_BASE_URL = isLocalhost
           ? 'http://localhost:3000'
           : 'https://tishahotel.onrender.com';
 
-        // For demo purposes, using a simple hardcoded username/password
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'admin123';
-
-        // Handle login form submission
+        // Login form submission
         $('#loginForm').on('submit', function(e) {
           e.preventDefault();
-          const username = $('#username').val();
-          const password = $('#password').val();
-
-          if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            // Hide login section and show admin dashboard
+          
+          const username = $('#username').val().trim();
+          const password = $('#password').val().trim();
+          
+          // Basic validation
+          if (!username || !password) {
+            $('.alert-danger').text('Please enter both username and password').show();
+            return;
+          }
+          
+          // Show loading state
+          const submitBtn = $(this).find('button[type="submit"]');
+          const originalText = submitBtn.text();
+          submitBtn.prop('disabled', true).text('Logging in...');
+          
+          // Hide any previous error messages
+          $('.alert-danger').hide();
+          
+          // For demo purposes, check against hardcoded admin credentials
+          if (username === 'admin' && password === 'admin123') {
+            // Successful login
             $('#loginSection').hide();
             $('#adminDashboard').show();
-            $('#loginError').hide();
+            
+            // Show welcome message with animation
+            $('.welcome-message').fadeIn('slow').delay(3000).fadeOut('slow');
+            
+            // Store login state
+            localStorage.setItem('adminLoggedIn', 'true');
+            
+            // Load initial data
+            loadBookings();
+            loadUsers();
+            loadRoomPrices();
           } else {
-            $('#loginError').show();
+            // Failed login
+            $('.alert-danger').text('Invalid username or password').show();
+            submitBtn.prop('disabled', false).text(originalText);
           }
         });
 
-        // Handle file input change
-        $('input[type="file"]').on('change', function(e) {
-          if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-              $(this).closest('.card-body').find('.image-preview').attr('src', e.target.result);
-            }.bind(this);
-            reader.readAsDataURL(e.target.files[0]);
-          }
+        // Logout functionality
+        $('#logoutBtn').click(function(e) {
+          e.preventDefault();
+          localStorage.removeItem('adminLoggedIn');
+          $('#adminDashboard').hide();
+          $('#loginSection').show();
+          $('.alert-danger').hide();
+          // Clear form
+          $('#loginForm')[0].reset();
         });
 
-        // Handle room updates
-        $('.room-card .btn-primary').on('click', function() {
-          const card = $(this).closest('.room-card');
-          const roomName = card.find('h3').text().trim();
-          const description = card.find('textarea').val().trim();
-          const price = card.find('.price-input').val().trim();
-          const maxAdults = card.find('input[placeholder="Adults"]').val().trim();
-          const maxChildren = card.find('input[placeholder="Children"]').val().trim();
-
-          console.log('Sending update for room:', {
-            roomName,
-            description,
-            price,
-            maxAdults,
-            maxChildren
-          });
-
-          // Make API call to update room
-          $.ajax({
-            url: `${API_BASE_URL}/api/updateRoom`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-              roomName,
-              description,
-              price: parseInt(price),
-              maxAdults: parseInt(maxAdults),
-              maxChildren: parseInt(maxChildren)
-            }),
-            success: function(response) {
-              alert(`Room "${roomName}" updated successfully!`);
-            },
-            error: function(xhr, status, error) {
-              let errorMessage = 'Error updating room. Please try again.';
-              try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.error) {
-                  errorMessage = `Error: ${response.error}`;
-                }
-              } catch (e) {}
-              alert(errorMessage);
-              console.error('Error details:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-              });
-            }
-          });
+        // Initialize Bootstrap tabs
+        $('.nav-tabs .nav-link').on('click', function(e) {
+          e.preventDefault();
+          $(this).tab('show');
         });
 
-        // Handle price updates
-        $('#prices .btn-primary').on('click', function() {
-          const row = $(this).closest('tr');
-          const roomName = row.find('td:first').text().trim();
-          const price = row.find('.price-input').val().trim();
-
-          console.log('Sending price update:', {
-            roomName,
-            price
-          });
-
-          // Make API call to update price
-          $.ajax({
-            url: `${API_BASE_URL}/api/updateRoom`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-              roomName,
-              price: parseInt(price)
-            }),
-            success: function(response) {
-              alert(`Price for "${roomName}" updated successfully!`);
-              row.find('td:nth-child(2)').text(`GH₵${price}`);
-            },
-            error: function(xhr, status, error) {
-              let errorMessage = 'Error updating price. Please try again.';
-              try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.error) {
-                  errorMessage = `Error: ${response.error}`;
-                }
-              } catch (e) {}
-              alert(errorMessage);
-              console.error('Error details:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-              });
-            }
-          });
-        });
-
-        // Handle image uploads
-        $('#images .btn-primary').on('click', function() {
-          const card = $(this).closest('.card');
-          const roomName = card.find('.card-title').text().trim();
-          const fileInput = card.find('input[type="file"]')[0];
-
-          if (fileInput.files.length > 0) {
-            const formData = new FormData();
-            formData.append('image', fileInput.files[0]);
-            formData.append('roomName', roomName);
-
-            console.log('Uploading image for room:', roomName);
-
-            $.ajax({
-              url: `${API_BASE_URL}/api/uploadImage`,
-              method: 'POST',
-              data: formData,
-              processData: false,
-              contentType: false,
-              success: function(response) {
-                alert(`Image for "${roomName}" uploaded successfully!`);
-                // Refresh the image preview with a timestamp to prevent caching
-                const imgPreview = card.find('.image-preview');
-                const currentSrc = imgPreview.attr('src').split('?')[0];
-                imgPreview.attr('src', currentSrc + '?t=' + new Date().getTime());
-              },
-              error: function(xhr, status, error) {
-                let errorMessage = 'Error uploading image. Please try again.';
-                try {
-                  const response = JSON.parse(xhr.responseText);
-                  if (response.error) {
-                    errorMessage = `Error: ${response.error}`;
-                  }
-                } catch (e) {}
-                alert(errorMessage);
-                console.error('Error details:', {
-                  status: xhr.status,
-                  statusText: xhr.statusText,
-                  responseText: xhr.responseText,
-                  error: error
-                });
-              }
-            });
-          } else {
-            alert('Please select an image first.');
+        // Handle tab changes
+        $('.nav-tabs .nav-link').on('shown.bs.tab', function(e) {
+          const targetTab = $(e.target).attr('href');
+          
+          // Load data based on active tab
+          switch(targetTab) {
+            case '#rooms':
+              loadRoomPrices();
+              break;
+            case '#bookings':
+              loadBookings();
+              break;
+            case '#users':
+              loadUsers();
+              break;
+            case '#images':
+              // Any initialization for images tab
+              break;
           }
         });
 
         // Load bookings
         function loadBookings(filter = 'all') {
+          const bookingsTable = $('#bookingsTable tbody');
+          showLoading(bookingsTable.closest('.card-body'));
+
           $.ajax({
             url: `${API_BASE_URL}/api/bookings`,
             method: 'GET',
             success: function(response) {
+              bookingsTable.empty();
               const bookings = response.bookings.filter(booking => 
                 filter === 'all' || booking.status === filter
               );
-              
-              const tbody = $('#bookingsTable tbody');
-              tbody.empty();
               
               bookings.forEach(booking => {
                 const row = `
@@ -631,8 +1151,8 @@
                     <td>${booking.bookingNumber}</td>
                     <td>${booking.firstName} ${booking.lastName}</td>
                     <td>${booking.roomName} (${booking.numberOfRooms} room${booking.numberOfRooms > 1 ? 's' : ''})</td>
-                    <td>${booking.checkinDate}</td>
-                    <td>${booking.checkoutDate}</td>
+                    <td class="mobile-hide">${booking.checkinDate}</td>
+                    <td class="mobile-hide">${booking.checkoutDate}</td>
                     <td>
                       <select class="form-control status-select" data-booking="${booking.bookingNumber}">
                         <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>Pending</option>
@@ -650,12 +1170,14 @@
                     </td>
                   </tr>
                 `;
-                tbody.append(row);
+                bookingsTable.append(row);
               });
+              hideLoading(bookingsTable.closest('.card-body'));
             },
             error: function(xhr, status, error) {
               console.error('Error loading bookings:', error);
               alert('Error loading bookings. Please try again.');
+              hideLoading(bookingsTable.closest('.card-body'));
             }
           });
         }
@@ -695,6 +1217,327 @@
           $('#bookings-tab').tab('show');
           loadBookings();
         }
+
+        // Load users
+        function loadUsers() {
+          const usersTable = $('#usersTable tbody');
+          showLoading(usersTable.closest('.card-body'));
+
+          $.ajax({
+            url: `${API_BASE_URL}/api/users`,
+            method: 'GET',
+            success: function(response) {
+              usersTable.empty();
+              const users = response.users || [];
+              
+              users.forEach(user => {
+                const row = `
+                  <tr>
+                    <td>${user.username}</td>
+                    <td>${user.name}</td>
+                    <td class="mobile-hide">${user.email}</td>
+                    <td>${user.role}</td>
+                    <td class="mobile-hide">${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <button class="btn btn-sm btn-info edit-user" data-user='${JSON.stringify(user)}'>
+                        <i class="fa fa-edit"></i>
+                      </button>
+                      ${user.id !== 'admin' ? `
+                        <button class="btn btn-sm btn-danger delete-user" data-user-id="${user.id}">
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      ` : ''}
+                    </td>
+                  </tr>
+                `;
+                usersTable.append(row);
+              });
+              hideLoading(usersTable.closest('.card-body'));
+            },
+            error: function(xhr, status, error) {
+              console.error('Error loading users:', error);
+              alert('Error loading users. Please try again.');
+              hideLoading(usersTable.closest('.card-body'));
+            }
+          });
+        }
+
+        // Add new user
+        $('#saveUserBtn').on('click', function() {
+          const form = $('#addUserForm');
+          const userData = {
+            username: form.find('[name="username"]').val(),
+            password: form.find('[name="password"]').val(),
+            name: form.find('[name="name"]').val(),
+            email: form.find('[name="email"]').val(),
+            role: form.find('[name="role"]').val()
+          };
+
+          $.ajax({
+            url: `${API_BASE_URL}/api/users`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(userData),
+            success: function(response) {
+              $('#addUserModal').modal('hide');
+              form[0].reset();
+              loadUsers();
+              alert('User added successfully!');
+            },
+            error: function(xhr, status, error) {
+              console.error('Error adding user:', error);
+              alert(xhr.responseJSON?.error || 'Error adding user. Please try again.');
+            }
+          });
+        });
+
+        // Edit user
+        $(document).on('click', '.edit-user', function() {
+          const user = $(this).data('user');
+          const form = $('#editUserForm');
+          
+          form.find('[name="userId"]').val(user.id);
+          form.find('[name="name"]').val(user.name);
+          form.find('[name="email"]').val(user.email);
+          form.find('[name="role"]').val(user.role);
+          form.find('[name="password"]').val('');
+          
+          $('#editUserModal').modal('show');
+        });
+
+        // Update user
+        $('#updateUserBtn').on('click', function() {
+          const form = $('#editUserForm');
+          const userId = form.find('[name="userId"]').val();
+          const userData = {
+            name: form.find('[name="name"]').val(),
+            email: form.find('[name="email"]').val(),
+            role: form.find('[name="role"]').val()
+          };
+
+          const password = form.find('[name="password"]').val();
+          if (password) {
+            userData.password = password;
+          }
+
+          $.ajax({
+            url: `${API_BASE_URL}/api/users/${userId}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(userData),
+            success: function(response) {
+              $('#editUserModal').modal('hide');
+              form[0].reset();
+              loadUsers();
+              alert('User updated successfully!');
+            },
+            error: function(xhr, status, error) {
+              console.error('Error updating user:', error);
+              alert(xhr.responseJSON?.error || 'Error updating user. Please try again.');
+            }
+          });
+        });
+
+        // Delete user
+        $(document).on('click', '.delete-user', function() {
+          if (!confirm('Are you sure you want to delete this user?')) {
+            return;
+          }
+
+          const userId = $(this).data('user-id');
+          $.ajax({
+            url: `${API_BASE_URL}/api/users/${userId}`,
+            method: 'DELETE',
+            success: function(response) {
+              loadUsers();
+              alert('User deleted successfully!');
+            },
+            error: function(xhr, status, error) {
+              console.error('Error deleting user:', error);
+              alert(xhr.responseJSON?.error || 'Error deleting user. Please try again.');
+            }
+          });
+        });
+
+        // Load users when switching to users tab
+        $('#users-tab').on('shown.bs.tab', function() {
+          loadUsers();
+        });
+
+        // Initial load of users if on users tab
+        if (window.location.hash === '#users') {
+          $('#users-tab').tab('show');
+          loadUsers();
+        }
+
+        // Add loading states
+        function showLoading(element) {
+          element.addClass('loading');
+        }
+
+        function hideLoading(element) {
+          element.removeClass('loading');
+        }
+
+        // Improve table responsiveness
+        function adjustTableColumns() {
+          if (window.innerWidth <= 576) {
+            $('.table .mobile-hide').hide();
+          } else {
+            $('.table .mobile-hide').show();
+          }
+        }
+
+        // Call on load and resize
+        adjustTableColumns();
+        $(window).on('resize', adjustTableColumns);
+
+        // Add loading states to AJAX calls
+        function loadBookings(filter = 'all') {
+          const tableBody = $('#bookingsTable tbody').closest('.card-body');
+          showLoading(tableBody);
+          
+          $.ajax({
+            url: `${API_BASE_URL}/api/bookings`,
+            method: 'GET',
+            success: function(response) {
+              // ... existing code ...
+              hideLoading(tableBody);
+            },
+            error: function(xhr, status, error) {
+              hideLoading(tableBody);
+              console.error('Error loading bookings:', error);
+              alert('Error loading bookings. Please try again.');
+            }
+          });
+        }
+
+        function loadUsers() {
+          const tableBody = $('#usersTable tbody').closest('.card-body');
+          showLoading(tableBody);
+          
+          $.ajax({
+            url: `${API_BASE_URL}/api/users`,
+            method: 'GET',
+            success: function(response) {
+              // ... existing code ...
+              hideLoading(tableBody);
+            },
+            error: function(xhr, status, error) {
+              hideLoading(tableBody);
+              console.error('Error loading users:', error);
+              alert('Error loading users. Please try again.');
+            }
+          });
+        }
+
+        // Load room prices
+        function loadRoomPrices() {
+          const pricesTable = $('#pricesTable tbody');
+          showLoading(pricesTable.closest('.card-body'));
+
+          $.ajax({
+            url: `${API_BASE_URL}/api/roomConfig`,
+            method: 'GET',
+            success: function(response) {
+              pricesTable.empty();
+              const rooms = response.rooms || {};
+              
+              Object.entries(rooms).forEach(([roomType, config]) => {
+                const row = `
+                  <tr>
+                    <td>${config.name}</td>
+                    <td>
+                      <input type="number" class="form-control room-price" 
+                             data-room-type="${roomType}" 
+                             value="${config.price}">
+                    </td>
+                    <td>
+                      <button class="btn btn-primary btn-sm save-price" data-room-type="${roomType}">
+                        Save
+                      </button>
+                    </td>
+                  </tr>
+                `;
+                pricesTable.append(row);
+              });
+              hideLoading(pricesTable.closest('.card-body'));
+            },
+            error: function(xhr, status, error) {
+              console.error('Error loading room prices:', error);
+              alert('Error loading room prices. Please try again.');
+              hideLoading(pricesTable.closest('.card-body'));
+            }
+          });
+        }
+
+        // Add touch support for tables
+        $('.table-responsive').on('touchstart', function(e) {
+          $(this).css('overflow-x', 'auto');
+        }).on('touchend touchcancel', function(e) {
+          const table = $(this);
+          setTimeout(function() {
+            table.css('overflow-x', 'hidden');
+          }, 1000);
+        });
+
+        // Improve modal behavior on mobile
+        $('.modal').on('show.bs.modal', function() {
+          if (window.innerWidth <= 768) {
+            $(this).css('padding-right', '0');
+          }
+        });
+
+        // Add swipe support for tabs on mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        $('.nav-tabs').on('touchstart', function(e) {
+          touchStartX = e.originalEvent.touches[0].clientX;
+        });
+
+        $('.nav-tabs').on('touchend', function(e) {
+          touchEndX = e.originalEvent.changedTouches[0].clientX;
+          handleSwipe();
+        });
+
+        function handleSwipe() {
+          const swipeThreshold = 50;
+          const activeTab = $('.nav-link.active');
+          
+          if (touchEndX < touchStartX - swipeThreshold) {
+            // Swipe left - next tab
+            const nextTab = activeTab.parent().next().find('.nav-link');
+            if (nextTab.length) nextTab.tab('show');
+          } else if (touchEndX > touchStartX + swipeThreshold) {
+            // Swipe right - previous tab
+            const prevTab = activeTab.parent().prev().find('.nav-link');
+            if (prevTab.length) prevTab.tab('show');
+          }
+        }
+
+        // Add navigation functionality
+        // Removed navigation functionality
+
+        // Close menu when clicking outside
+        $(document).click(function(e) {
+          // Removed close menu functionality
+        });
+
+        // Password visibility toggle
+        $('.toggle-password').click(function() {
+          const passwordField = $(this).siblings('input');
+          const icon = $(this).find('i');
+          
+          // Toggle password visibility
+          if (passwordField.attr('type') === 'password') {
+            passwordField.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+          } else {
+            passwordField.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+          }
+        });
       });
     </script>
   </body>
