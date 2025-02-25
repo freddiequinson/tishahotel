@@ -812,48 +812,77 @@
         $('#reservation-form').on('submit', function(e) {
           e.preventDefault();
           
-          // Get form data
+          // Get form values
           const formData = {
-            bookingNumber: generateBookingNumber(),
-            firstName: $('#first_name').val(),
-            lastName: $('#last_name').val(),
-            email: $('#email').val(),
-            phone: $('#phone').val(),
+            firstName: $('#first_name').val().trim(),
+            lastName: $('#last_name').val().trim(),
+            email: $('#email').val().trim(),
+            phone: $('#phone').val().trim(),
             checkinDate: $('#checkin_date').val(),
             checkoutDate: $('#checkout_date').val(),
-            adults: parseInt($('#adults').val()),
-            children: parseInt($('#children').val()),
-            roomType: $('#room_type').val()
+            roomType: $('#room_type').val(),
+            adults: $('#adults').val(),
+            children: $('#children').val(),
+            specialRequests: $('#message').val().trim(),
+            bookingNumber: generateBookingNumber()
           };
 
-          // Calculate booking details
-          const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
-          const bookingDetails = calculateBooking(formData.roomType, formData.adults, formData.children, nights);
+          // Validate required fields
+          const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'checkinDate', 'checkoutDate', 'roomType', 'adults', 'children'];
+          const missingFields = requiredFields.filter(field => !formData[field]);
+          
+          if (missingFields.length > 0) {
+            alert('Please fill in all required fields marked with *');
+            return;
+          }
 
-          // Add booking details to form data
-          formData.nights = nights;
-          formData.numberOfRooms = bookingDetails.numberOfRooms;
-          formData.basePrice = bookingDetails.basePrice;
-          formData.totalAmount = bookingDetails.totalPrice;
-          formData.roomName = bookingDetails.roomName;
+          // Validate email format
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(formData.email)) {
+            alert('Please enter a valid email address');
+            return;
+          }
 
-          // Save booking to server
+          // Show loading state
+          const submitButton = $(this).find('button[type="submit"]');
+          const originalText = submitButton.text();
+          submitButton.prop('disabled', true).text('Processing...');
+
+          // Submit booking
           $.ajax({
-            url: window.location.hostname === 'localhost' 
-              ? 'http://localhost:3000/api/bookings'
-              : 'https://tishahotel.onrender.com/api/bookings',
+            url: '/api/bookings',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function(response) {
-              console.log('Booking saved:', response);
-              showReceipt(bookingDetails, formData);
-              $('#availabilityPopup').hide();
-              $('#receiptPopup').show();
+              if (response.success) {
+                // Calculate booking details
+                const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
+                const booking = calculateBooking(formData.roomType, formData.adults, formData.children, nights);
+                
+                // Show receipt
+                showReceipt({
+                  ...booking,
+                  bookingNumber: formData.bookingNumber,
+                  nights: nights
+                }, formData);
+
+                // Show success popup
+                showPopup($('#successPopup'));
+                
+                // Reset form
+                $('#reservation-form')[0].reset();
+              } else {
+                alert('Failed to create booking. Please try again.');
+              }
             },
             error: function(xhr, status, error) {
-              console.error('Error saving booking:', error);
-              alert('There was an error saving your booking. Please try again.');
+              console.error('Booking error:', error);
+              alert('Error creating booking. Please try again.');
+            },
+            complete: function() {
+              // Reset button state
+              submitButton.prop('disabled', false).text(originalText);
             }
           });
         });

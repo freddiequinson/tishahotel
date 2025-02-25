@@ -36,7 +36,9 @@
 
   // aos
   AOS.init({
-    duration: 1000
+    duration: 1000,
+    once: true,
+    disable: 'mobile'
   });
 
 	// home slider

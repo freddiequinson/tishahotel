@@ -263,35 +263,82 @@ app.post('/api/uploadImage', upload.single('image'), (req, res) => {
   }
 });
 
-// Booking management endpoints
+// Booking Management Endpoints
 app.post('/api/bookings', async (req, res) => {
   try {
-    const bookingData = req.body;
-    const bookingsCollection = db.collection('bookings');
-    const bookings = await bookingsCollection.find({}).toArray();
-    
-    // Add timestamp and status
-    bookingData.createdAt = new Date().toISOString();
-    bookingData.status = 'pending';
-    
-    bookings.push(bookingData);
-    await bookingsCollection.insertMany(bookings);
-    
-    res.json({ success: true, booking: bookingData });
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      checkinDate,
+      checkoutDate,
+      roomType,
+      adults,
+      children,
+      specialRequests,
+      bookingNumber
+    } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !email || !phone || !checkinDate || !checkoutDate || !roomType || !adults || !children) {
+      return res.status(400).json({ error: 'All required fields must be filled' });
+    }
+
+    // Create booking object
+    const booking = {
+      bookingNumber,
+      firstName,
+      lastName,
+      email,
+      phone,
+      checkinDate,
+      checkoutDate,
+      roomType,
+      adults: parseInt(adults),
+      children: parseInt(children),
+      specialRequests,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to MongoDB
+    await db.collection('bookings').insertOne(booking);
+
+    // Send confirmation email (to be implemented)
+    // TODO: Implement email sending
+
+    res.json({ 
+      success: true, 
+      message: 'Booking created successfully',
+      booking 
+    });
+
   } catch (error) {
     console.error('Error creating booking:', error);
-    res.status(500).json({ error: 'Failed to create booking' });
+    res.status(500).json({ 
+      error: 'Failed to create booking',
+      details: error.message
+    });
   }
 });
 
-app.get('/api/bookings', async (req, res) => {
+app.get('/api/bookings/:bookingNumber', async (req, res) => {
   try {
-    const bookingsCollection = db.collection('bookings');
-    const bookings = await bookingsCollection.find({}).toArray();
-    res.json(bookings);
+    const { bookingNumber } = req.params;
+    const booking = await db.collection('bookings').findOne({ bookingNumber });
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json(booking);
   } catch (error) {
-    console.error('Error reading bookings:', error);
-    res.status(500).json({ error: 'Failed to read bookings' });
+    console.error('Error fetching booking:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch booking',
+      details: error.message 
+    });
   }
 });
 
@@ -299,25 +346,43 @@ app.put('/api/bookings/:bookingNumber', async (req, res) => {
   try {
     const { bookingNumber } = req.params;
     const { status } = req.body;
-    const bookingsCollection = db.collection('bookings');
-    const booking = await bookingsCollection.findOne({ bookingNumber: bookingNumber });
-    if (booking) {
-      await bookingsCollection.updateOne(
-        { bookingNumber: bookingNumber },
-        { 
-          $set: { 
-            status: status,
-            updatedAt: new Date().toISOString()
-          }
-        }
-      );
-      res.json({ success: true, booking });
-    } else {
-      res.status(404).json({ error: 'Booking not found' });
+    const booking = await db.collection('bookings').findOne({ bookingNumber });
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
     }
+
+    await db.collection('bookings').updateOne(
+      { bookingNumber },
+      { 
+        $set: { 
+          status,
+          updatedAt: new Date().toISOString()
+        }
+      }
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Booking updated successfully',
+      booking 
+    });
   } catch (error) {
     console.error('Error updating booking:', error);
-    res.status(500).json({ error: 'Failed to update booking' });
+    res.status(500).json({ 
+      error: 'Failed to update booking',
+      details: error.message 
+    });
+  }
+});
+
+app.get('/api/bookings', async (req, res) => {
+  try {
+    const bookings = await db.collection('bookings').find({}).toArray();
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error reading bookings:', error);
+    res.status(500).json({ error: 'Failed to read bookings' });
   }
 });
 
