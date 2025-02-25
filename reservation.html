@@ -357,6 +357,23 @@
 
                 <div class="row">
                   <div class="col-md-6 mb-3 mb-lg-0">
+                    <label for="email" class="font-weight-bold text-black">Email</label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-envelope"></span></div>
+                      <input type="email" id="email" class="form-control" placeholder="Enter email">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="phone" class="font-weight-bold text-black">Phone <span class="text-danger">*</span></label>
+                    <div class="field-icon-wrap">
+                      <div class="icon"><span class="icon-phone"></span></div>
+                      <input type="tel" id="phone" class="form-control" placeholder="Enter phone number" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-lg-0">
                     <label for="checkin_date" class="font-weight-bold text-black">Check In <span class="text-danger">*</span></label>
                     <div class="field-icon-wrap">
                       <div class="icon"><span class="icon-calendar"></span></div>
@@ -399,40 +416,32 @@
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
                       </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-lg-0">
-                    <label for="room_type" class="font-weight-bold text-black">Room Type <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-chevron-down"></span></div>
-                      <select name="room_type" id="room_type" class="form-control" required>
-                        <option value="">Select room type...</option>
-                        <option value="junior">Junior Suite</option>
-                        <option value="standard">Standard Room</option>
-                        <option value="master">Master Room</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="phone" class="font-weight-bold text-black">Phone Number <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-phone"></span></div>
-                      <input type="tel" id="phone" class="form-control" placeholder="+233 XX XXX XXXX" required>
                     </div>
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-12 mb-3">
-                    <label for="email" class="font-weight-bold text-black">Email</label>
+                    <label for="room_type" class="font-weight-bold text-black">Room Type <span class="text-danger">*</span></label>
                     <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-envelope"></span></div>
-                      <input type="email" id="email" class="form-control" placeholder="awurama@email.com">
+                      <div class="icon"><span class="icon-chevron-down"></span></div>
+                      <select name="room_type" id="room_type" class="form-control" required>
+                        <option value="">Select room type...</option>
+                        <option value="Standard">Standard Room</option>
+                        <option value="Deluxe">Deluxe Room</option>
+                        <option value="Executive">Executive Room</option>
+                      </select>
                     </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12 mb-3">
+                    <label for="message" class="font-weight-bold text-black">Special Requests</label>
+                    <textarea name="message" id="message" class="form-control" placeholder="Enter any special requests or requirements"></textarea>
                   </div>
                 </div>
 
@@ -828,7 +837,7 @@
           };
 
           // Validate required fields
-          const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'checkinDate', 'checkoutDate', 'roomType', 'adults', 'children'];
+          const requiredFields = ['firstName', 'lastName', 'phone', 'checkinDate', 'checkoutDate', 'roomType', 'adults', 'children'];
           const missingFields = requiredFields.filter(field => !formData[field]);
           
           if (missingFields.length > 0) {
@@ -838,7 +847,7 @@
 
           // Validate email format
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(formData.email)) {
+          if (formData.email && !emailRegex.test(formData.email)) {
             alert('Please enter a valid email address');
             return;
           }
