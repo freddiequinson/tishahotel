@@ -819,19 +819,19 @@
                     <td>Junior Suite</td>
                     <td>GH₵250</td>
                     <td><input type="number" class="form-control price-input" value="250"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="junior-suite">Update</button></td>
                   </tr>
                   <tr>
                     <td>Standard Room</td>
                     <td>GH₵280</td>
                     <td><input type="number" class="form-control price-input" value="280"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="standard-room">Update</button></td>
                   </tr>
                   <tr>
                     <td>Master Room</td>
                     <td>GH₵300</td>
                     <td><input type="number" class="form-control price-input" value="300"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="master-room">Update</button></td>
                   </tr>
                 </tbody>
               </table>
@@ -997,7 +997,7 @@
         // Set API base URL
         const API_BASE_URL = isLocalhost
           ? 'http://localhost:3000'
-          : 'https://tishahotel.onrender.com';
+          : window.location.origin;
 
         // Login form submission
         $('#loginForm').on('submit', function(e) {
@@ -1377,6 +1377,42 @@
             }
           });
         }
+
+        // Handle room price updates
+        $(document).on('click', '.save-price', function() {
+          const button = $(this);
+          const roomType = button.data('room-type');
+          const price = button.closest('tr').find('.room-price').val();
+          const description = button.closest('tr').find('.room-description').val();
+          
+          showLoading(button.closest('.card-body'));
+          
+          $.ajax({
+            url: `${API_BASE_URL}/api/updateRoom`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              roomName: roomType,
+              price: price,
+              description: description
+            }),
+            success: function(response) {
+              if (response.success) {
+                alert('Room updated successfully!');
+                loadRoomPrices(); // Reload the prices
+              } else {
+                alert('Failed to update room. Please try again.');
+              }
+            },
+            error: function(xhr, status, error) {
+              console.error('Error updating room:', error);
+              alert('Error updating room. Please try again.');
+            },
+            complete: function() {
+              hideLoading(button.closest('.card-body'));
+            }
+          });
+        });
 
         // Add touch support for tables
         $('.table-responsive').on('touchstart', function(e) {

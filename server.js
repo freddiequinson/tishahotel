@@ -153,6 +153,7 @@ app.get('/api/roomConfig', async (req, res) => {
 
 app.post('/api/updateRoom', async (req, res) => {
   try {
+    console.log('Received update request:', req.body);
     const { roomName, description, price } = req.body;
     
     await db.collection('rooms').updateOne(
@@ -166,10 +167,11 @@ app.post('/api/updateRoom', async (req, res) => {
       { upsert: true }
     );
 
+    console.log('Room updated successfully:', roomName);
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating room:', error);
-    res.status(500).json({ error: 'Failed to update room' });
+    res.status(500).json({ error: 'Failed to update room', details: error.message });
   }
 });
 
