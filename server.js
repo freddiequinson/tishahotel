@@ -177,7 +177,11 @@ function updateHtmlFile(filePath, roomUpdates) {
 app.get('/api/roomConfig', async (req, res) => {
   try {
     const rooms = await db.collection('rooms').find({}).toArray();
-    res.json(rooms);
+    const formattedRooms = rooms.map(room => ({
+      ...room,
+      formattedPrice: `GH₵${room.price} / per night`
+    }));
+    res.json(formattedRooms);
   } catch (error) {
     console.error('Error reading room config:', error);
     res.status(500).json({ error: 'Failed to read room configuration' });
