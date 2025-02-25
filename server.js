@@ -4,9 +4,26 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// MongoDB Connection URI (you'll get this from MongoDB Atlas)
+const MONGODB_URI = process.env.MONGODB_URI || 'your_mongodb_uri_here';
+let db;
+
+// Connect to MongoDB
+async function connectToMongo() {
+  try {
+    const client = await MongoClient.connect(MONGODB_URI);
+    db = client.db('tishahotel');
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+  }
+}
+connectToMongo();
 
 // CORS middleware
 app.use((req, res, next) => {
@@ -124,59 +141,30 @@ function updateHtmlFile(filePath, roomUpdates) {
 }
 
 // API Endpoints
-app.get('/api/roomConfig', (req, res) => {
+app.get('/api/roomConfig', async (req, res) => {
   try {
-    const roomConfig = JSON.parse(fs.readFileSync('room-config.json', 'utf8'));
-    res.json(roomConfig);
+    const rooms = await db.collection('rooms').find({}).toArray();
+    res.json(rooms);
   } catch (error) {
     console.error('Error reading room config:', error);
     res.status(500).json({ error: 'Failed to read room configuration' });
   }
 });
 
-app.post('/api/updateRoom', (req, res) => {
+app.post('/api/updateRoom', async (req, res) => {
   try {
     const { roomName, description, price } = req.body;
     
-    // Update room-config.json
-    const roomConfig = JSON.parse(fs.readFileSync('room-config.json', 'utf8'));
-    const roomKey = Object.keys(roomConfig).find(key => 
-      roomConfig[key].name.toLowerCase() === roomName.toLowerCase()
+    await db.collection('rooms').updateOne(
+      { name: roomName },
+      { 
+        $set: { 
+          description: description,
+          price: parseInt(price)
+        }
+      },
+      { upsert: true }
     );
-    
-    if (roomKey && price) {
-      roomConfig[roomKey].price = parseInt(price);
-      fs.writeFileSync('room-config.json', JSON.stringify(roomConfig, null, 2));
-    }
-
-    // Update HTML files
-    ['index.html', 'rooms.html'].forEach(filename => {
-      if (fs.existsSync(filename)) {
-        let content = fs.readFileSync(filename, 'utf8');
-        const $ = cheerio.load(content);
-
-        // Find the room section
-        $('h2').each(function() {
-          if ($(this).text().trim() === roomName) {
-            // Update price
-            if (price) {
-              $(this).next('.text-uppercase').text(`GH₵${price} / per night`);
-            }
-            
-            // Update description
-            if (description) {
-              const amenitiesDiv = $(this).parent().find('.room-amenities');
-              const icons = amenitiesDiv.find('span').clone(); // Save icons
-              amenitiesDiv.empty().append(icons); // Clear and restore icons
-              amenitiesDiv.append(`<p class="mt-3">${description}</p>`);
-            }
-          }
-        });
-
-        // Save the file
-        fs.writeFileSync(filename, $.html());
-      }
-    });
 
     res.json({ success: true });
   } catch (error) {
@@ -207,17 +195,18 @@ app.post('/api/uploadImage', upload.single('image'), (req, res) => {
 });
 
 // Booking management endpoints
-app.post('/api/bookings', (req, res) => {
+app.post('/api/bookings', async (req, res) => {
   try {
     const bookingData = req.body;
-    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
+    const bookingsCollection = db.collection('bookings');
+    const bookings = await bookingsCollection.find({}).toArray();
     
     // Add timestamp and status
     bookingData.createdAt = new Date().toISOString();
     bookingData.status = 'pending';
     
-    bookings.bookings.push(bookingData);
-    fs.writeFileSync('bookings.json', JSON.stringify(bookings, null, 2));
+    bookings.push(bookingData);
+    await bookingsCollection.insertMany(bookings);
     
     res.json({ success: true, booking: bookingData });
   } catch (error) {
@@ -226,9 +215,10 @@ app.post('/api/bookings', (req, res) => {
   }
 });
 
-app.get('/api/bookings', (req, res) => {
+app.get('/api/bookings', async (req, res) => {
   try {
-    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
+    const bookingsCollection = db.collection('bookings');
+    const bookings = await bookingsCollection.find({}).toArray();
     res.json(bookings);
   } catch (error) {
     console.error('Error reading bookings:', error);
@@ -236,17 +226,22 @@ app.get('/api/bookings', (req, res) => {
   }
 });
 
-app.put('/api/bookings/:bookingNumber', (req, res) => {
+app.put('/api/bookings/:bookingNumber', async (req, res) => {
   try {
     const { bookingNumber } = req.params;
     const { status } = req.body;
-    const bookings = JSON.parse(fs.readFileSync('bookings.json', 'utf8'));
-    
-    const booking = bookings.bookings.find(b => b.bookingNumber === bookingNumber);
+    const bookingsCollection = db.collection('bookings');
+    const booking = await bookingsCollection.findOne({ bookingNumber: bookingNumber });
     if (booking) {
-      booking.status = status;
-      booking.updatedAt = new Date().toISOString();
-      fs.writeFileSync('bookings.json', JSON.stringify(bookings, null, 2));
+      await bookingsCollection.updateOne(
+        { bookingNumber: bookingNumber },
+        { 
+          $set: { 
+            status: status,
+            updatedAt: new Date().toISOString()
+          }
+        }
+      );
       res.json({ success: true, booking });
     } else {
       res.status(404).json({ error: 'Booking not found' });
@@ -273,16 +268,18 @@ let users = [{
 }];
 
 // User Management Endpoints
-app.get('/api/users', (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
-    res.json({ users });
+    const usersCollection = db.collection('users');
+    const usersData = await usersCollection.find({}).toArray();
+    res.json(usersData);
   } catch (error) {
     console.error('Error reading users:', error);
     res.status(500).json({ error: 'Failed to read users' });
   }
 });
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users', async (req, res) => {
   try {
     const { username, password, role, name, email } = req.body;
     
@@ -292,7 +289,9 @@ app.post('/api/users', (req, res) => {
     }
 
     // Check if username already exists
-    if (users.some(user => user.username === username)) {
+    const usersCollection = db.collection('users');
+    const existingUser = await usersCollection.findOne({ username: username });
+    if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
@@ -308,7 +307,7 @@ app.post('/api/users', (req, res) => {
     };
 
     // Add to users array
-    users.push(newUser);
+    await usersCollection.insertOne(newUser);
 
     res.json({ success: true, user: newUser });
   } catch (error) {
@@ -317,34 +316,32 @@ app.post('/api/users', (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/api/users/:id', async (req, res) => {
   try {
     const userId = req.params.id;
 
     // Find user index
-    const userIndex = users.findIndex(user => user.id === userId);
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ id: userId });
 
-    if (userIndex === -1) {
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Prevent deleting the default admin user
-    if (users[userIndex].username === DEFAULT_ADMIN_USERNAME) {
+    if (user.username === DEFAULT_ADMIN_USERNAME) {
       return res.status(400).json({ error: 'Cannot delete the default admin user' });
     }
 
     // Prevent deleting the last admin user
-    const isAdmin = users[userIndex].role === 'admin';
-    const remainingAdmins = users.filter(user => 
-      user.role === 'admin' && user.id !== userId
-    ).length;
-
-    if (isAdmin && remainingAdmins === 0) {
+    const isAdmin = user.role === 'admin';
+    const remainingAdmins = await usersCollection.find({ role: 'admin', id: { $ne: userId } }).toArray();
+    if (isAdmin && remainingAdmins.length === 0) {
       return res.status(400).json({ error: 'Cannot delete the last admin user' });
     }
 
     // Remove user
-    users.splice(userIndex, 1);
+    await usersCollection.deleteOne({ id: userId });
 
     res.json({ success: true });
   } catch (error) {
@@ -353,14 +350,13 @@ app.delete('/api/users/:id', (req, res) => {
   }
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
     // Find user with matching credentials
-    const user = users.find(u => 
-      u.username === username && u.password === password
-    );
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ username: username, password: password });
     
     if (user) {
       // Create safe user object without password
