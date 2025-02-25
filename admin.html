@@ -818,20 +818,20 @@
                   <tr>
                     <td>Junior Suite</td>
                     <td>GH₵250</td>
-                    <td><input type="number" class="form-control price-input" value="250"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="junior-suite">Update</button></td>
+                    <td><input type="number" class="form-control room-price" value="250"></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Junior Suite">Update</button></td>
                   </tr>
                   <tr>
                     <td>Standard Room</td>
                     <td>GH₵280</td>
-                    <td><input type="number" class="form-control price-input" value="280"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="standard-room">Update</button></td>
+                    <td><input type="number" class="form-control room-price" value="280"></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Standard Room">Update</button></td>
                   </tr>
                   <tr>
                     <td>Master Room</td>
                     <td>GH₵300</td>
-                    <td><input type="number" class="form-control price-input" value="300"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="master-room">Update</button></td>
+                    <td><input type="number" class="form-control room-price" value="300"></td>
+                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Master Room">Update</button></td>
                   </tr>
                 </tbody>
               </table>
@@ -1382,9 +1382,14 @@
         $(document).on('click', '.save-price', function() {
           const button = $(this);
           const roomType = button.data('room-type');
-          const price = button.closest('tr').find('.room-price').val();
-          const description = button.closest('tr').find('.room-description').val();
+          const priceInput = button.closest('tr').find('.room-price');
+          const price = priceInput.val();
           
+          if (!price) {
+            alert('Please enter a valid price');
+            return;
+          }
+
           showLoading(button.closest('.card-body'));
           
           $.ajax({
@@ -1393,20 +1398,20 @@
             contentType: 'application/json',
             data: JSON.stringify({
               roomName: roomType,
-              price: price,
-              description: description
+              price: parseInt(price)
             }),
             success: function(response) {
               if (response.success) {
-                alert('Room updated successfully!');
-                loadRoomPrices(); // Reload the prices
+                alert('Room price updated successfully!');
+                // Update the current price display
+                button.closest('tr').find('td:eq(1)').text(`GH₵${price}`);
               } else {
-                alert('Failed to update room. Please try again.');
+                alert('Failed to update room price. Please try again.');
               }
             },
             error: function(xhr, status, error) {
               console.error('Error updating room:', error);
-              alert('Error updating room. Please try again.');
+              alert('Error updating room price. Please try again.');
             },
             complete: function() {
               hideLoading(button.closest('.card-body'));

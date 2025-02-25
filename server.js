@@ -16,14 +16,47 @@ let db;
 // Connect to MongoDB
 async function connectToMongo() {
   try {
+    console.log('Attempting to connect to MongoDB...');
     const client = await MongoClient.connect(MONGODB_URI);
     db = client.db('tishahotel');
-    console.log('Connected to MongoDB');
+    console.log('Successfully connected to MongoDB');
+    
+    // Test the connection by listing collections
+    const collections = await db.listCollections().toArray();
+    console.log('Available collections:', collections.map(c => c.name));
+    
+    // Initialize rooms collection if it doesn't exist
+    const roomsExist = collections.some(c => c.name === 'rooms');
+    if (!roomsExist) {
+      console.log('Initializing rooms collection...');
+      await db.createCollection('rooms');
+      await db.collection('rooms').insertMany([
+        {
+          name: 'Junior Suite',
+          price: 250,
+          description: 'Our cozy Junior Suite offers comfort and convenience.'
+        },
+        {
+          name: 'Standard Room',
+          price: 280,
+          description: 'Our comfortable Standard Room offers all essential amenities.'
+        },
+        {
+          name: 'Master Room',
+          price: 300,
+          description: 'Our luxurious Master Room provides extra space and comfort.'
+        }
+      ]);
+      console.log('Rooms collection initialized');
+    }
   } catch (error) {
     console.error('MongoDB connection error:', error);
+    throw error;
   }
 }
-connectToMongo();
+
+// Connect to MongoDB when server starts
+connectToMongo().catch(console.error);
 
 // CORS middleware
 app.use((req, res, next) => {
@@ -154,24 +187,54 @@ app.get('/api/roomConfig', async (req, res) => {
 app.post('/api/updateRoom', async (req, res) => {
   try {
     console.log('Received update request:', req.body);
-    const { roomName, description, price } = req.body;
+    const { roomName, price } = req.body;
     
-    await db.collection('rooms').updateOne(
+    if (!roomName || !price) {
+      console.log('Missing required fields:', { roomName, price });
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        details: 'Both roomName and price are required'
+      });
+    }
+
+    const result = await db.collection('rooms').updateOne(
       { name: roomName },
       { 
         $set: { 
-          description: description,
           price: parseInt(price)
         }
-      },
-      { upsert: true }
+      }
     );
 
+    console.log('Update result:', result);
+
+    if (result.matchedCount === 0) {
+      console.log('No room found with name:', roomName);
+      return res.status(404).json({ 
+        error: 'Room not found',
+        details: `No room found with name: ${roomName}`
+      });
+    }
+
+    if (result.modifiedCount === 0) {
+      console.log('Room found but not modified:', roomName);
+      return res.json({ 
+        success: true,
+        message: 'Room price unchanged'
+      });
+    }
+
     console.log('Room updated successfully:', roomName);
-    res.json({ success: true });
+    res.json({ 
+      success: true,
+      message: 'Room price updated successfully'
+    });
   } catch (error) {
     console.error('Error updating room:', error);
-    res.status(500).json({ error: 'Failed to update room', details: error.message });
+    res.status(500).json({ 
+      error: 'Failed to update room',
+      details: error.message
+    });
   }
 });
 
@@ -371,6 +434,19 @@ app.post('/api/login', async (req, res) => {
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Add a test endpoint to check MongoDB connection
+app.get('/api/testdb', async (req, res) => {
+  try {
+    console.log('Testing database connection...');
+    const rooms = await db.collection('rooms').find({}).toArray();
+    console.log('Current rooms in database:', rooms);
+    res.json({ success: true, rooms });
+  } catch (error) {
+    console.error('Database test failed:', error);
+    res.status(500).json({ error: 'Database test failed', details: error.message });
   }
 });
 
