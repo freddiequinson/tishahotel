@@ -684,11 +684,11 @@
                 <img src="assets/junior-room.jpg" alt="Junior Suite" class="img-fluid">
                 <div class="form-group">
                   <label>Room Description</label>
-                  <textarea class="form-control" rows="3">Our cozy Junior Suite offers comfort and convenience, perfect for small families with all essential amenities including free WiFi, DStv, and minibar.</textarea>
+                  <textarea class="form-control room-description" rows="3">Our cozy Junior Suite offers comfort and convenience, perfect for small families with all essential amenities including free WiFi, DStv, and minibar.</textarea>
                 </div>
                 <div class="form-group">
                   <label>Price (GH₵)</label>
-                  <input type="number" class="form-control price-input" value="250">
+                  <input type="number" class="form-control room-price" value="250">
                 </div>
                 <div class="form-group">
                   <label>Max Occupancy</label>
@@ -701,7 +701,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-primary">Save Changes</button>
+                <button class="btn btn-primary save-price" data-room-type="Junior Suite">Save Changes</button>
               </div>
 
               <!-- Standard Room -->
@@ -710,11 +710,11 @@
                 <img src="assets/standard-room.jpg" alt="Standard Room" class="img-fluid">
                 <div class="form-group">
                   <label>Room Description</label>
-                  <textarea class="form-control" rows="3">Our comfortable Standard Room offers all essential amenities for a pleasant stay, including free WiFi, DStv, and a well-stocked minibar.</textarea>
+                  <textarea class="form-control room-description" rows="3">Our comfortable Standard Room offers all essential amenities for a pleasant stay, including free WiFi, DStv, and a well-stocked minibar.</textarea>
                 </div>
                 <div class="form-group">
                   <label>Price (GH₵)</label>
-                  <input type="number" class="form-control price-input" value="280">
+                  <input type="number" class="form-control room-price" value="280">
                 </div>
                 <div class="form-group">
                   <label>Max Occupancy</label>
@@ -727,7 +727,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-primary">Save Changes</button>
+                <button class="btn btn-primary save-price" data-room-type="Standard Room">Save Changes</button>
               </div>
 
               <!-- Master Room -->
@@ -736,11 +736,11 @@
                 <img src="assets/master-room.jpg" alt="Master Room" class="img-fluid">
                 <div class="form-group">
                   <label>Room Description</label>
-                  <textarea class="form-control" rows="3">Our luxurious Master Room provides extra space and comfort, complete with all premium amenities for an exceptional stay.</textarea>
+                  <textarea class="form-control room-description" rows="3">Our luxurious Master Room provides extra space and comfort, complete with all premium amenities for an exceptional stay.</textarea>
                 </div>
                 <div class="form-group">
                   <label>Price (GH₵)</label>
-                  <input type="number" class="form-control price-input" value="300">
+                  <input type="number" class="form-control room-price" value="300">
                 </div>
                 <div class="form-group">
                   <label>Max Occupancy</label>
@@ -753,7 +753,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-primary">Save Changes</button>
+                <button class="btn btn-primary save-price" data-room-type="Master Room">Save Changes</button>
               </div>
             </div>
           </div>
@@ -1382,7 +1382,7 @@
         $(document).on('click', '.save-price', function() {
           const button = $(this);
           const roomType = button.data('room-type');
-          const priceInput = button.closest('tr').find('.room-price');
+          const priceInput = button.closest('.room-card').find('.room-price');
           const price = priceInput.val();
           
           if (!price) {
@@ -1390,10 +1390,10 @@
             return;
           }
 
-          showLoading(button.closest('.card-body'));
+          button.prop('disabled', true).text('Saving...');
           
           $.ajax({
-            url: `${API_BASE_URL}/api/updateRoom`,
+            url: '/api/updateRoom',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -1403,8 +1403,6 @@
             success: function(response) {
               if (response.success) {
                 alert('Room price updated successfully!');
-                // Update the current price display
-                button.closest('tr').find('td:eq(1)').text(`GH₵${price}`);
               } else {
                 alert('Failed to update room price. Please try again.');
               }
@@ -1414,7 +1412,7 @@
               alert('Error updating room price. Please try again.');
             },
             complete: function() {
-              hideLoading(button.closest('.card-body'));
+              button.prop('disabled', false).text('Save Changes');
             }
           });
         });
