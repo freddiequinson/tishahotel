@@ -281,7 +281,7 @@ app.post('/api/bookings', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !phone || !checkinDate || !checkoutDate || !roomType || !adults || !children) {
+    if (!firstName || !lastName || !email || !phone || !checkinDate || !checkoutDate || !roomType || !adults || !children) {
       return res.status(400).json({ error: 'All required fields must be filled' });
     }
 
