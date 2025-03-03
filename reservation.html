@@ -774,64 +774,101 @@
 
         // Format currency for PDF
         function formatCurrencyPDF(amount) {
-          return 'GHS ' + amount.toFixed(2);
+          if (amount === undefined || amount === null) {
+            return 'GH₵0.00';
+          }
+          return `GH₵${parseFloat(amount).toFixed(2)}`;
         }
 
         // Format currency for display
         function formatCurrency(amount) {
-          return '₵' + amount.toFixed(2);
+          if (amount === undefined || amount === null) {
+            return 'GH₵0.00';
+          }
+          return `GH₵${parseFloat(amount).toFixed(2)}`;
         }
 
         // Show receipt
         function showReceipt(bookingData) {
           const receipt = $('#receiptPopup');
           const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
+          const roomConfig = {
+            'junior': { name: 'Junior Suite', price: 350 },
+            'standard': { name: 'Standard Room', price: 200 },
+            'master': { name: 'Master Room', price: 300 }
+          };
+          
+          const roomType = roomConfig[bookingData.roomType.toLowerCase()];
+          const roomPrice = roomType ? roomType.price : 0;
+          const totalPrice = roomPrice * nights * bookingData.numberOfRooms;
 
           // Update receipt content
-          receipt.find('.booking-dates').html(`
-            <p>Booking #: ${bookingData.bookingNumber}</p>
-            <p>Check-in: ${bookingData.checkinDate}<br>
-            Check-out: ${bookingData.checkoutDate}<br>
-            Duration: ${nights} night${nights > 1 ? 's' : ''}</p>
-          `);
+          receipt.find('#receipt-booking-number').text(bookingData.bookingNumber);
+          receipt.find('#receipt-guest-name').text(`${bookingData.firstName} ${bookingData.lastName}`);
+          receipt.find('#receipt-checkin').text(bookingData.checkinDate);
+          receipt.find('#receipt-checkout').text(bookingData.checkoutDate);
+          receipt.find('#receipt-nights').text(nights);
+          receipt.find('#receipt-room-type').text(roomType ? roomType.name : 'Unknown Room');
+          receipt.find('#receipt-room-rate').text(formatCurrency(roomPrice));
+          receipt.find('#receipt-rooms').text(bookingData.numberOfRooms);
+          receipt.find('#receipt-total').text(formatCurrency(totalPrice));
 
-          receipt.find('.guest-info').html(`
-            <h6>Guest Information:</h6>
-            <p>
-              Name: ${bookingData.firstName} ${bookingData.lastName}<br>
-              Phone: ${bookingData.phone}<br>
-              ${bookingData.email ? 'Email: ' + bookingData.email + '<br>' : ''}
-              Adults: ${bookingData.adults}<br>
-              Children: ${bookingData.children}
-            </p>
-          `);
+          // Show the receipt
+          showPopup('#receiptPopup');
+        }
 
-          receipt.find('.room-details').html(`
-            <h6>Room Details:</h6>
-            <p>
-              Room Type: ${bookingData.roomType}<br>
-              Number of Rooms: ${bookingData.numberOfRooms}
-            </p>
-          `);
+        // Download receipt
+        function downloadReceipt(bookingData) {
+          const doc = new jsPDF();
+          const roomConfig = {
+            'junior': { name: 'Junior Suite', price: 350 },
+            'standard': { name: 'Standard Room', price: 200 },
+            'master': { name: 'Master Room', price: 300 }
+          };
+          
+          const roomType = roomConfig[bookingData.roomType.toLowerCase()];
+          const roomPrice = roomType ? roomType.price : 0;
+          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
+          const totalPrice = roomPrice * nights * bookingData.numberOfRooms;
 
-          receipt.find('.price-breakdown').html(`
-            <h6>Price Breakdown:</h6>
-            <div class="price-item">
-              <span>Room Rate (per night)</span>
-              <span>${formatCurrency(bookingData.basePrice)}</span>
-            </div>
-            <div class="price-item">
-              <span>${bookingData.roomType} x ${bookingData.numberOfRooms} rooms x ${nights} nights</span>
-              <span>${formatCurrency(bookingData.totalPrice)}</span>
-            </div>
-          `);
-
-          receipt.find('.total-price').text(formatCurrency(bookingData.totalPrice));
-
-          // Store booking details for confirmation
-          receipt.data('bookingDetails', bookingData);
-
-          showPopup(receipt);
+          // Set up the PDF
+          doc.setFontSize(20);
+          doc.text("Tisha Hotel", 105, 20, { align: "center" });
+          
+          doc.setFontSize(16);
+          doc.text("Booking Receipt", 105, 30, { align: "center" });
+          
+          doc.setFontSize(12);
+          doc.text(`Booking Number: ${bookingData.bookingNumber}`, 20, 50);
+          doc.text(`Guest: ${bookingData.firstName} ${bookingData.lastName}`, 20, 60);
+          doc.text(`Phone: ${bookingData.phone}`, 20, 70);
+          doc.text(`Email: ${bookingData.email}`, 20, 80);
+          
+          doc.text("Booking Details", 20, 100);
+          doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 110);
+          doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 120);
+          doc.text(`Room Type: ${roomType ? roomType.name : 'Unknown Room'}`, 20, 130);
+          doc.text(`Room Rate: ${formatCurrencyPDF(roomPrice)} per night`, 20, 140);
+          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 150);
+          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 160);
+          doc.text(`Total Amount: ${formatCurrencyPDF(totalPrice)}`, 20, 170);
+          
+          // Add payment notice
+          doc.setTextColor(220, 53, 69); // Red color for warning
+          doc.setFontSize(14);
+          doc.text("PAYMENT PENDING", 105, 190, { align: "center" });
+          doc.setTextColor(0); // Reset to black
+          doc.setFontSize(12);
+          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 200, { align: "center" });
+          
+          // Add footer
+          doc.setFontSize(10);
+          doc.text("Tisha Hotel", 105, 260, { align: "center" });
+          doc.text("Phone: +233 24 749 1908", 105, 265, { align: "center" });
+          doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 270, { align: "center" });
+          
+          // Save the PDF
+          doc.save(`booking-${bookingData.bookingNumber}.pdf`);
         }
 
         // Generate booking number
