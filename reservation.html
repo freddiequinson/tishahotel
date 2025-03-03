@@ -912,72 +912,86 @@
           e.preventDefault();
           
           try {
-            // Validate required fields
-            var requiredFields = ['first_name', 'last_name', 'phone', 'checkin_date', 'checkout_date', 'adults', 'children', 'room_type'];
-            var isValid = true;
-            
-            requiredFields.forEach(function(field) {
-              var value = $(`#${field}`).val();
-              if (!value || value.trim() === '') {
-                isValid = false;
-                $(`#${field}`).addClass('is-invalid');
-              } else {
-                $(`#${field}`).removeClass('is-invalid');
-              }
-            });
-
-            if (!isValid) {
-              alert('Please fill in all required fields');
-              return;
-            }
-
             // Get form data
             var formData = {
-              firstName: $('#first_name').val(),
-              lastName: $('#last_name').val(),
-              email: $('#email').val() || 'Not provided',
-              phone: $('#phone').val(),
+              firstName: $('#first_name').val().trim(),
+              lastName: $('#last_name').val().trim(),
+              email: $('#email').val().trim() || 'Not provided',
+              phone: $('#phone').val().trim(),
               checkinDate: $('#checkin_date').val(),
               checkoutDate: $('#checkout_date').val(),
               adults: parseInt($('#adults').val()),
               children: parseInt($('#children').val()),
-              roomType: $('#room_type').val()
+              roomType: $('#room_type').val(),
+              bookingNumber: generateBookingNumber(),
+              totalAmount: 0, // Will be calculated below
+              numberOfRooms: 1
             };
 
-            // Calculate booking details
-            var checkinDate = new Date(formData.checkinDate);
-            var checkoutDate = new Date(formData.checkoutDate);
-            var nights = calculateNights(checkinDate, checkoutDate);
-            
-            if (nights <= 0) {
-              alert('Please select valid check-in and check-out dates');
-              return;
+            // Validate required fields
+            const requiredFields = {
+              firstName: 'First Name',
+              lastName: 'Last Name',
+              phone: 'Phone Number',
+              checkinDate: 'Check-in Date',
+              checkoutDate: 'Check-out Date',
+              adults: 'Number of Adults',
+              children: 'Number of Children',
+              roomType: 'Room Type'
+            };
+
+            const missingFields = [];
+            for (const [field, label] of Object.entries(requiredFields)) {
+              if (!formData[field]) {
+                missingFields.push(label);
+                $(`#${field}`).addClass('is-invalid');
+              } else {
+                $(`#${field}`).removeClass('is-invalid');
+              }
             }
 
-            var booking = calculateBooking(
+            if (missingFields.length > 0) {
+              throw new Error(`Please fill in the following fields: ${missingFields.join(', ')}`);
+            }
+
+            // Calculate booking details
+            const checkinDate = new Date(formData.checkinDate);
+            const checkoutDate = new Date(formData.checkoutDate);
+            const nights = calculateNights(checkinDate, checkoutDate);
+            
+            if (nights <= 0) {
+              throw new Error('Please select valid check-in and check-out dates');
+            }
+
+            // Calculate total amount
+            const booking = calculateBooking(
               formData.roomType,
               formData.adults,
               formData.children,
               nights
             );
 
-            var bookingData = {
-              ...formData,
-              ...booking,
-              bookingNumber: generateBookingNumber(),
-              nights: nights
-            };
+            // Update formData with calculated values
+            formData.totalAmount = booking.totalPrice;
+            formData.numberOfRooms = booking.numberOfRooms;
+            formData.nights = nights;
+
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
             // Save booking to server
             $.ajax({
-              url: `${API_BASE_URL}/api/bookings`,
+              url: '/api/bookings',
               method: 'POST',
               contentType: 'application/json',
-              data: JSON.stringify(bookingData),
+              data: JSON.stringify(formData),
               success: function(response) {
+                console.log('Booking successful:', response);
+                
                 // Show receipt and download PDF
-                showReceipt(bookingData);
-                downloadReceipt(bookingData);
+                showReceipt(formData);
+                downloadReceipt(formData);
                 
                 // Show success popup
                 $('#guestName').text(formData.firstName + ' ' + formData.lastName);
@@ -988,15 +1002,34 @@
               },
               error: function(xhr, status, error) {
                 console.error('Booking error:', error);
-                alert('There was an error processing your booking. Please try again.');
+                console.error('Server response:', xhr.responseText);
+                let errorMessage = 'There was an error processing your booking. Please try again.';
+                
+                try {
+                  const response = JSON.parse(xhr.responseText);
+                  if (response.error) {
+                    errorMessage = response.error;
+                    if (response.missingFields) {
+                      errorMessage += ': ' + response.missingFields.join(', ');
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error parsing error response:', e);
+                }
+                
+                alert(errorMessage);
+              },
+              complete: function() {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false).text('Book Now');
               }
             });
           } catch (error) {
             console.error('Form submission error:', error);
-            alert('There was an error processing your booking. Please try again.');
+            alert(error.message || 'There was an error processing your booking. Please try again.');
           }
         });
-        
+
         // Handle booking confirmation
         $('.confirm-booking').on('click', function() {
           const receipt = $('#receiptPopup');
