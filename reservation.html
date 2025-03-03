@@ -775,17 +775,17 @@
         // Format currency for PDF
         function formatCurrencyPDF(amount) {
           if (amount === undefined || amount === null) {
-            return 'GH₵0.00';
+            return 'GHS 0.00';
           }
-          return `GH₵${parseFloat(amount).toFixed(2)}`;
+          return `GHS ${parseFloat(amount).toFixed(2)}`;
         }
 
         // Format currency for display
         function formatCurrency(amount) {
           if (amount === undefined || amount === null) {
-            return 'GH₵0.00';
+            return 'GHS 0.00';
           }
-          return `GH₵${parseFloat(amount).toFixed(2)}`;
+          return `GHS ${parseFloat(amount).toFixed(2)}`;
         }
 
         // Show receipt
@@ -837,102 +837,37 @@
           
           doc.setFontSize(16);
           doc.text("Booking Receipt", 105, 30, { align: "center" });
-          
-          doc.setFontSize(12);
-          doc.text(`Booking Number: ${bookingData.bookingNumber}`, 20, 50);
-          doc.text(`Guest: ${bookingData.firstName} ${bookingData.lastName}`, 20, 60);
-          doc.text(`Phone: ${bookingData.phone}`, 20, 70);
-          doc.text(`Email: ${bookingData.email}`, 20, 80);
-          
-          doc.text("Booking Details", 20, 100);
-          doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 110);
-          doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 120);
-          doc.text(`Room Type: ${roomType ? roomType.name : 'Unknown Room'}`, 20, 130);
-          doc.text(`Room Rate: ${formatCurrencyPDF(roomPrice)} per night`, 20, 140);
-          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 150);
-          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 160);
-          doc.text(`Total Amount: ${formatCurrencyPDF(totalPrice)}`, 20, 170);
-          
-          // Add payment notice
-          doc.setTextColor(220, 53, 69); // Red color for warning
-          doc.setFontSize(14);
-          doc.text("PAYMENT PENDING", 105, 190, { align: "center" });
-          doc.setTextColor(0); // Reset to black
-          doc.setFontSize(12);
-          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 200, { align: "center" });
-          
-          // Add footer
-          doc.setFontSize(10);
-          doc.text("Tisha Hotel", 105, 260, { align: "center" });
-          doc.text("Phone: +233 24 749 1908", 105, 265, { align: "center" });
-          doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 270, { align: "center" });
-          
-          // Save the PDF
-          doc.save(`booking-${bookingData.bookingNumber}.pdf`);
-        }
-
-        // Generate booking number
-        function generateBookingNumber() {
-          const date = new Date();
-          const year = date.getFullYear().toString().substr(-2);
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const day = date.getDate().toString().padStart(2, '0');
-          const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-          return `TH${year}${month}${day}-${random}`;
-        }
-
-        // Download receipt
-        function downloadReceipt(bookingData) {
-          // Create new jsPDF instance
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF();
-          
-          // Set font
-          doc.setFont("helvetica");
-          
-          // Add hotel name
-          doc.setFontSize(24);
-          doc.text("Tisha Hotel", 105, 20, { align: "center" });
-          
-          // Add booking number
-          doc.setFontSize(14);
-          doc.text("Booking Receipt", 105, 30, { align: "center" });
           doc.text(`Booking #: ${bookingData.bookingNumber}`, 105, 40, { align: "center" });
           
           // Add guest information
-          doc.setFontSize(16);
+          doc.setFontSize(14);
           doc.text("Guest Information", 20, 60);
           doc.setFontSize(12);
           doc.text(`Name: ${bookingData.firstName} ${bookingData.lastName}`, 20, 70);
           doc.text(`Phone: ${bookingData.phone}`, 20, 80);
-          if (bookingData.email) {
+          if (bookingData.email && bookingData.email !== 'Not provided') {
             doc.text(`Email: ${bookingData.email}`, 20, 90);
           }
           
           // Add booking details
-          doc.setFontSize(16);
+          doc.setFontSize(14);
           doc.text("Booking Details", 20, 110);
           doc.setFontSize(12);
           doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 120);
           doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 130);
-          doc.text(`Room Type: ${ROOM_CONFIG[bookingData.roomType.toLowerCase()].name}`, 20, 140);
-          doc.text(`Room Rate: ${formatCurrencyPDF(ROOM_CONFIG[bookingData.roomType.toLowerCase()].price)} per night`, 20, 150);
+          doc.text(`Room Type: ${roomType ? roomType.name : 'Unknown Room'}`, 20, 140);
+          doc.text(`Room Rate: ${formatCurrencyPDF(roomPrice)} per night`, 20, 150);
           doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 160);
-          
-          // Add payment details
-          doc.setFontSize(16);
-          doc.text("Payment Details", 20, 180);
-          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
-          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 190);
-          doc.text(`Total Amount: ${formatCurrencyPDF(bookingData.totalPrice)}`, 20, 200);
+          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 170);
+          doc.text(`Total Amount: ${formatCurrencyPDF(totalPrice)}`, 20, 180);
           
           // Add payment notice
           doc.setTextColor(220, 53, 69); // Red color for warning
           doc.setFontSize(14);
-          doc.text("PAYMENT PENDING", 105, 220, { align: "center" });
+          doc.text("PAYMENT PENDING", 105, 200, { align: "center" });
           doc.setTextColor(0); // Reset to black
           doc.setFontSize(12);
-          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 230, { align: "center" });
+          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 210, { align: "center" });
           
           // Add footer
           doc.setFontSize(10);
@@ -961,7 +896,6 @@
               children: parseInt($('#children').val()),
               roomType: $('#room_type').val(),
               bookingNumber: generateBookingNumber(),
-              totalAmount: 0, // Will be calculated below
               numberOfRooms: 1
             };
 
@@ -1000,67 +934,110 @@
               throw new Error('Please select valid check-in and check-out dates');
             }
 
-            // Calculate total amount
-            const booking = calculateBooking(
-              formData.roomType,
-              formData.adults,
-              formData.children,
-              nights
-            );
+            // Calculate total amount based on room type
+            const roomConfig = {
+              'junior': { name: 'Junior Suite', price: 350 },
+              'standard': { name: 'Standard Room', price: 200 },
+              'master': { name: 'Master Room', price: 300 }
+            };
+            
+            const roomType = roomConfig[formData.roomType.toLowerCase()];
+            const roomPrice = roomType ? roomType.price : 0;
+            const totalPrice = roomPrice * nights * formData.numberOfRooms;
 
-            // Update formData with calculated values
-            formData.totalAmount = booking.totalPrice;
-            formData.numberOfRooms = booking.numberOfRooms;
-            formData.nights = nights;
+            // Show booking summary first
+            const summaryHtml = `
+              <div class="booking-summary">
+                <h4>Booking Summary</h4>
+                <p><strong>Guest:</strong> ${formData.firstName} ${formData.lastName}</p>
+                <p><strong>Room Type:</strong> ${roomType ? roomType.name : 'Unknown Room'}</p>
+                <p><strong>Check-in:</strong> ${formData.checkinDate}</p>
+                <p><strong>Check-out:</strong> ${formData.checkoutDate}</p>
+                <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
+                <p><strong>Total Amount:</strong> ${formatCurrency(totalPrice)}</p>
+              </div>
+            `;
 
-            // Show loading state
-            const submitBtn = $(this).find('button[type="submit"]');
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+            // Show confirmation dialog
+            const confirmDialog = $('<div>')
+              .addClass('popup')
+              .html(`
+                <div class="popup-content">
+                  ${summaryHtml}
+                  <div class="popup-buttons">
+                    <button class="btn btn-success confirm-booking">Confirm Booking</button>
+                    <button class="btn btn-secondary cancel-booking">Cancel</button>
+                  </div>
+                </div>
+              `);
 
-            // Save booking to server
-            $.ajax({
-              url: '/api/bookings',
-              method: 'POST',
-              contentType: 'application/json',
-              data: JSON.stringify(formData),
-              success: function(response) {
-                console.log('Booking successful:', response);
-                
-                // Show receipt and download PDF
-                showReceipt(formData);
-                downloadReceipt(formData);
-                
-                // Show success popup
-                $('#guestName').text(formData.firstName + ' ' + formData.lastName);
-                showPopup('#availabilityPopup');
-                
-                // Reset form
-                $('#reservation-form')[0].reset();
-              },
-              error: function(xhr, status, error) {
-                console.error('Booking error:', error);
-                console.error('Server response:', xhr.responseText);
-                let errorMessage = 'There was an error processing your booking. Please try again.';
-                
-                try {
-                  const response = JSON.parse(xhr.responseText);
-                  if (response.error) {
-                    errorMessage = response.error;
-                    if (response.missingFields) {
-                      errorMessage += ': ' + response.missingFields.join(', ');
+            // Add dialog to body and show it
+            $('body').append(confirmDialog);
+            confirmDialog.fadeIn();
+
+            // Handle confirm booking
+            confirmDialog.find('.confirm-booking').on('click', function() {
+              confirmDialog.fadeOut().remove();
+              
+              // Show loading state
+              const submitBtn = $(this).find('button[type="submit"]');
+              submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+              // Update formData with calculated values
+              formData.totalAmount = totalPrice;
+              formData.nights = nights;
+
+              // Save booking to server
+              $.ajax({
+                url: '/api/bookings',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                  console.log('Booking successful:', response);
+                  
+                  // Show receipt and download PDF
+                  showReceipt(formData);
+                  downloadReceipt(formData);
+                  
+                  // Show success message
+                  $('#guestName').text(formData.firstName + ' ' + formData.lastName);
+                  showPopup('#availabilityPopup');
+                  
+                  // Reset form
+                  $('#reservation-form')[0].reset();
+                },
+                error: function(xhr, status, error) {
+                  console.error('Booking error:', error);
+                  console.error('Server response:', xhr.responseText);
+                  let errorMessage = 'There was an error processing your booking. Please try again.';
+                  
+                  try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.error) {
+                      errorMessage = response.error;
+                      if (response.missingFields) {
+                        errorMessage += ': ' + response.missingFields.join(', ');
+                      }
                     }
+                  } catch (e) {
+                    console.error('Error parsing error response:', e);
                   }
-                } catch (e) {
-                  console.error('Error parsing error response:', e);
+                  
+                  alert(errorMessage);
+                },
+                complete: function() {
+                  // Re-enable submit button
+                  submitBtn.prop('disabled', false).text('Book Now');
                 }
-                
-                alert(errorMessage);
-              },
-              complete: function() {
-                // Re-enable submit button
-                submitBtn.prop('disabled', false).text('Book Now');
-              }
+              });
             });
+
+            // Handle cancel booking
+            confirmDialog.find('.cancel-booking').on('click', function() {
+              confirmDialog.fadeOut().remove();
+            });
+
           } catch (error) {
             console.error('Form submission error:', error);
             alert(error.message || 'There was an error processing your booking. Please try again.');
