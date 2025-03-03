@@ -663,13 +663,7 @@
             <a class="nav-link" id="bookings-tab" data-toggle="tab" href="#bookings" role="tab">Bookings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="prices-tab" data-toggle="tab" href="#prices" role="tab">Prices</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab">Images</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab">Users</a>
           </li>
         </ul>
 
@@ -802,42 +796,6 @@
             </div>
           </div>
 
-          <!-- Prices Tab -->
-          <div class="tab-pane fade" id="prices" role="tabpanel">
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Room Type</th>
-                    <th>Current Price</th>
-                    <th>New Price</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Junior Suite</td>
-                    <td>GH₵250</td>
-                    <td><input type="number" class="form-control room-price" value="250"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Junior Suite">Update</button></td>
-                  </tr>
-                  <tr>
-                    <td>Standard Room</td>
-                    <td>GH₵280</td>
-                    <td><input type="number" class="form-control room-price" value="280"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Standard Room">Update</button></td>
-                  </tr>
-                  <tr>
-                    <td>Master Room</td>
-                    <td>GH₵300</td>
-                    <td><input type="number" class="form-control room-price" value="300"></td>
-                    <td><button class="btn btn-primary btn-sm save-price" data-room-type="Master Room">Update</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           <!-- Images Tab -->
           <div class="tab-pane fade" id="images" role="tabpanel">
             <div class="row">
@@ -882,93 +840,9 @@
               </div>
             </div>
           </div>
-
-          <!-- Users Tab -->
-          <div class="tab-pane fade" id="users" role="tabpanel">
-            <div class="row mb-4">
-              <div class="col-md-12">
-                <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addUserModal">
-                  <i class="fa fa-plus"></i> Add New User
-                </button>
-                <div class="card">
-                  <div class="card-header">
-                    <h5 class="mb-0">User Management</h5>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-hover" id="usersTable">
-                        <thead>
-                          <tr>
-                            <th>Username</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- User rows will be dynamically added here -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
-
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Add New User</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="addUserForm">
-              <div class="form-group">
-                <label for="newUsername">Username</label>
-                <input type="text" class="form-control" id="newUsername" required>
-              </div>
-              <div class="form-group">
-                <label for="newPassword">Password</label>
-                <div class="password-field">
-                  <input type="password" class="form-control" id="newPassword" required>
-                  <button type="button" class="toggle-password">
-                    <i class="fa fa-eye"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="newName">Full Name</label>
-                <input type="text" class="form-control" id="newName" required>
-              </div>
-              <div class="form-group">
-                <label for="newEmail">Email</label>
-                <input type="email" class="form-control" id="newEmail" required>
-              </div>
-              <div class="form-group">
-                <label for="newRole">Role</label>
-                <select class="form-control" id="newRole" required>
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="saveUserBtn">Save User</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
@@ -987,487 +861,21 @@
         // Clear any existing login state on page load
         localStorage.removeItem('adminLoggedIn');
         
-        // Make sure login section is visible and admin dashboard is hidden initially
-        $('#loginSection').show();
-        $('#adminDashboard, .welcome-message').hide();
-
-        // Check if we're on localhost
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        
-        // Set API base URL
-        const API_BASE_URL = isLocalhost
-          ? 'http://localhost:3000'
-          : window.location.origin;
-
-        // Login form submission
+        // Handle login form submission
         $('#loginForm').on('submit', function(e) {
           e.preventDefault();
-          
           const username = $('#username').val().trim();
           const password = $('#password').val().trim();
           
-          // Basic validation
-          if (!username || !password) {
-            $('.alert-danger').text('Please enter both username and password').show();
-            return;
-          }
-          
-          // Show loading state
-          const submitBtn = $(this).find('button[type="submit"]');
-          const originalText = submitBtn.text();
-          submitBtn.prop('disabled', true).text('Logging in...');
-          
-          // Hide any previous error messages
-          $('.alert-danger').hide();
-          
-          // For demo purposes, check against hardcoded admin credentials
           if (username === 'Aroma' && password === '12&Tisha') {
-            // Successful login
+            localStorage.setItem('adminLoggedIn', 'true');
             $('#loginSection').hide();
             $('#adminDashboard').show();
-            
-            // Show welcome message with animation
-            $('.welcome-message').fadeIn('slow').delay(3000).fadeOut('slow');
-            
-            // Store login state
-            localStorage.setItem('adminLoggedIn', 'true');
-            
-            // Load initial data
-            loadBookings();
-            loadUsers();
-            loadRoomPrices();
+            $('.welcome-message').show();
+            loadRoomData(); // Load room data immediately after login
           } else {
-            // Failed login
-            $('.alert-danger').text('Invalid username or password').show();
-            submitBtn.prop('disabled', false).text(originalText);
+            alert('Invalid credentials');
           }
-        });
-
-        // Logout functionality
-        $('#logoutBtn').click(function(e) {
-          e.preventDefault();
-          localStorage.removeItem('adminLoggedIn');
-          $('#adminDashboard').hide();
-          $('#loginSection').show();
-          $('.alert-danger').hide();
-          // Clear form
-          $('#loginForm')[0].reset();
-        });
-
-        // Initialize Bootstrap tabs
-        $('.nav-tabs .nav-link').on('click', function(e) {
-          e.preventDefault();
-          $(this).tab('show');
-        });
-
-        // Handle tab changes
-        $('.nav-tabs .nav-link').on('shown.bs.tab', function(e) {
-          const targetTab = $(e.target).attr('href');
-          
-          // Load data based on active tab
-          switch(targetTab) {
-            case '#rooms':
-              loadRoomPrices();
-              break;
-            case '#bookings':
-              loadBookings();
-              break;
-            case '#users':
-              loadUsers();
-              break;
-            case '#images':
-              // Any initialization for images tab
-              break;
-          }
-        });
-
-        // Load bookings
-        function loadBookings(filter = 'all') {
-          const bookingsTable = $('#bookingsTable tbody');
-          showLoading(bookingsTable.closest('.card-body'));
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/bookings`,
-            method: 'GET',
-            success: function(response) {
-              bookingsTable.empty();
-              const bookings = response.bookings.filter(booking => 
-                filter === 'all' || booking.status === filter
-              );
-              
-              bookings.forEach(booking => {
-                const row = `
-                  <tr>
-                    <td>${booking.bookingNumber}</td>
-                    <td>${booking.firstName} ${booking.lastName}</td>
-                    <td>${booking.roomName} (${booking.numberOfRooms} room${booking.numberOfRooms > 1 ? 's' : ''})</td>
-                    <td class="mobile-hide">${booking.checkinDate}</td>
-                    <td class="mobile-hide">${booking.checkoutDate}</td>
-                    <td>
-                      <select class="form-control status-select" data-booking="${booking.bookingNumber}">
-                        <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                        <option value="checked-in" ${booking.status === 'checked-in' ? 'selected' : ''}>Checked In</option>
-                        <option value="checked-out" ${booking.status === 'checked-out' ? 'selected' : ''}>Checked Out</option>
-                        <option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                      </select>
-                    </td>
-                    <td>GH₵${booking.totalAmount}</td>
-                    <td>
-                      <button class="btn btn-sm btn-info view-booking" data-booking="${booking.bookingNumber}">
-                        <i class="fa fa-eye"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `;
-                bookingsTable.append(row);
-              });
-              hideLoading(bookingsTable.closest('.card-body'));
-            },
-            error: function(xhr, status, error) {
-              console.error('Error loading bookings:', error);
-              alert('Error loading bookings. Please try again.');
-              hideLoading(bookingsTable.closest('.card-body'));
-            }
-          });
-        }
-
-        // Handle booking filter change
-        $('#bookingFilter').on('change', function() {
-          loadBookings($(this).val());
-        });
-
-        // Handle status change
-        $(document).on('change', '.status-select', function() {
-          const bookingNumber = $(this).data('booking');
-          const newStatus = $(this).val();
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/bookings/${bookingNumber}`,
-            method: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify({ status: newStatus }),
-            success: function(response) {
-              console.log('Status updated:', response);
-            },
-            error: function(xhr, status, error) {
-              console.error('Error updating status:', error);
-              alert('Error updating booking status. Please try again.');
-            }
-          });
-        });
-
-        // Load bookings when switching to bookings tab
-        $('#bookings-tab').on('shown.bs.tab', function() {
-          loadBookings($('#bookingFilter').val());
-        });
-
-        // Initial load of bookings
-        if (window.location.hash === '#bookings') {
-          $('#bookings-tab').tab('show');
-          loadBookings();
-        }
-
-        // Load users
-        function loadUsers() {
-          const usersTable = $('#usersTable tbody');
-          showLoading(usersTable.closest('.card-body'));
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/users`,
-            method: 'GET',
-            success: function(response) {
-              usersTable.empty();
-              const users = response.users || [];
-              
-              users.forEach(user => {
-                const row = `
-                  <tr>
-                    <td>${user.username}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td><span class="badge badge-${user.role === 'admin' ? 'primary' : 'secondary'}">${user.role}</span></td>
-                    <td>
-                      <button class="btn btn-sm btn-warning edit-user" data-id="${user.id}">
-                        <i class="fa fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-danger delete-user" data-id="${user.id}">
-                        <i class="fa fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `;
-                usersTable.append(row);
-              });
-              hideLoading(usersTable.closest('.card-body'));
-            },
-            error: function(xhr, status, error) {
-              console.error('Error loading users:', error);
-              alert('Failed to load users. Please try again.');
-              hideLoading(usersTable.closest('.card-body'));
-            }
-          });
-        }
-
-        // Add new user
-        $('#saveUserBtn').click(function() {
-          const userData = {
-            username: $('#newUsername').val().trim(),
-            password: $('#newPassword').val().trim(),
-            name: $('#newName').val().trim(),
-            email: $('#newEmail').val().trim(),
-            role: $('#newRole').val()
-          };
-
-          // Validate inputs
-          if (!userData.username || !userData.password || !userData.name || !userData.email) {
-            alert('Please fill in all required fields');
-            return;
-          }
-
-          // Show loading state
-          const btn = $(this);
-          const originalText = btn.text();
-          btn.prop('disabled', true).text('Saving...');
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/users`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(userData),
-            success: function(response) {
-              $('#addUserModal').modal('hide');
-              $('#addUserForm')[0].reset();
-              loadUsers(); // Reload the users table
-              alert('User added successfully!');
-            },
-            error: function(xhr, status, error) {
-              console.error('Error adding user:', error);
-              const errorMessage = xhr.responseJSON?.error || 'Failed to add user. Please try again.';
-              alert(errorMessage);
-            },
-            complete: function() {
-              btn.prop('disabled', false).text(originalText);
-            }
-          });
-        });
-
-        // Delete user
-        $(document).on('click', '.delete-user', function() {
-          if (confirm('Are you sure you want to delete this user?')) {
-            const userId = $(this).data('id');
-            
-            $.ajax({
-              url: `${API_BASE_URL}/api/users/${userId}`,
-              method: 'DELETE',
-              success: function(response) {
-                loadUsers(); // Reload the users table
-                alert('User deleted successfully!');
-              },
-              error: function(xhr, status, error) {
-                console.error('Error deleting user:', error);
-                alert('Failed to delete user. Please try again.');
-              }
-            });
-          }
-        });
-
-        // Clear form when modal is closed
-        $('#addUserModal').on('hidden.bs.modal', function() {
-          $('#addUserForm')[0].reset();
-        });
-
-        // Add loading states
-        function showLoading(element) {
-          element.addClass('loading');
-        }
-
-        function hideLoading(element) {
-          element.removeClass('loading');
-        }
-
-        // Improve table responsiveness
-        function adjustTableColumns() {
-          if (window.innerWidth <= 576) {
-            $('.table .mobile-hide').hide();
-          } else {
-            $('.table .mobile-hide').show();
-          }
-        }
-
-        // Call on load and resize
-        adjustTableColumns();
-        $(window).on('resize', adjustTableColumns);
-
-        // Add loading states to AJAX calls
-        function loadBookings(filter = 'all') {
-          const tableBody = $('#bookingsTable tbody').closest('.card-body');
-          showLoading(tableBody);
-          
-          $.ajax({
-            url: `${API_BASE_URL}/api/bookings`,
-            method: 'GET',
-            success: function(response) {
-              // ... existing code ...
-              hideLoading(tableBody);
-            },
-            error: function(xhr, status, error) {
-              hideLoading(tableBody);
-              console.error('Error loading bookings:', error);
-              alert('Error loading bookings. Please try again.');
-            }
-          });
-        }
-
-        function loadUsers() {
-          const tableBody = $('#usersTable tbody').closest('.card-body');
-          showLoading(tableBody);
-          
-          $.ajax({
-            url: `${API_BASE_URL}/api/users`,
-            method: 'GET',
-            success: function(response) {
-              // ... existing code ...
-              hideLoading(tableBody);
-            },
-            error: function(xhr, status, error) {
-              hideLoading(tableBody);
-              console.error('Error loading users:', error);
-              alert('Error loading users. Please try again.');
-            }
-          });
-        }
-
-        // Load room prices
-        function loadRoomPrices() {
-          const pricesTable = $('#pricesTable tbody');
-          showLoading(pricesTable.closest('.card-body'));
-
-          $.ajax({
-            url: `${API_BASE_URL}/api/roomConfig`,
-            method: 'GET',
-            success: function(response) {
-              pricesTable.empty();
-              const rooms = response.rooms || {};
-              
-              Object.entries(rooms).forEach(([roomType, config]) => {
-                const row = `
-                  <tr>
-                    <td>${config.name}</td>
-                    <td>
-                      <input type="number" class="form-control room-price" 
-                             data-room-type="${roomType}" 
-                             value="${config.price}">
-                    </td>
-                    <td>
-                      <button class="btn btn-primary btn-sm save-price" data-room-type="${roomType}">
-                        Save
-                      </button>
-                    </td>
-                  </tr>
-                `;
-                pricesTable.append(row);
-              });
-              hideLoading(pricesTable.closest('.card-body'));
-            },
-            error: function(xhr, status, error) {
-              console.error('Error loading room prices:', error);
-              alert('Error loading room prices. Please try again.');
-              hideLoading(pricesTable.closest('.card-body'));
-            }
-          });
-        }
-
-        // Handle room price updates
-        $(document).on('click', '.save-price', function() {
-          const button = $(this);
-          const roomType = button.data('room-type');
-          const priceInput = button.closest('.room-card').find('.room-price');
-          const price = priceInput.val();
-          
-          if (!price) {
-            alert('Please enter a valid price');
-            return;
-          }
-
-          button.prop('disabled', true).text('Saving...');
-          
-          $.ajax({
-            url: '/api/updateRoom',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-              roomName: roomType,
-              price: parseInt(price)
-            }),
-            success: function(response) {
-              if (response.success) {
-                alert('Room price updated successfully!');
-              } else {
-                alert('Failed to update room price. Please try again.');
-              }
-            },
-            error: function(xhr, status, error) {
-              console.error('Error updating room:', error);
-              alert('Error updating room price. Please try again.');
-            },
-            complete: function() {
-              button.prop('disabled', false).text('Save Changes');
-            }
-          });
-        });
-
-        // Add touch support for tables
-        $('.table-responsive').on('touchstart', function(e) {
-          $(this).css('overflow-x', 'auto');
-        }).on('touchend touchcancel', function(e) {
-          const table = $(this);
-          setTimeout(function() {
-            table.css('overflow-x', 'hidden');
-          }, 1000);
-        });
-
-        // Improve modal behavior on mobile
-        $('.modal').on('show.bs.modal', function() {
-          if (window.innerWidth <= 768) {
-            $(this).css('padding-right', '0');
-          }
-        });
-
-        // Add swipe support for tabs on mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        $('.nav-tabs').on('touchstart', function(e) {
-          touchStartX = e.originalEvent.touches[0].clientX;
-        });
-
-        $('.nav-tabs').on('touchend', function(e) {
-          touchEndX = e.originalEvent.changedTouches[0].clientX;
-          handleSwipe();
-        });
-
-        function handleSwipe() {
-          const swipeThreshold = 50;
-          const activeTab = $('.nav-link.active');
-          
-          if (touchEndX < touchStartX - swipeThreshold) {
-            // Swipe left - next tab
-            const nextTab = activeTab.parent().next().find('.nav-link');
-            if (nextTab.length) nextTab.tab('show');
-          } else if (touchEndX > touchStartX + swipeThreshold) {
-            // Swipe right - previous tab
-            const prevTab = activeTab.parent().prev().find('.nav-link');
-            if (prevTab.length) prevTab.tab('show');
-          }
-        }
-
-        // Add navigation functionality
-        // Removed navigation functionality
-
-        // Close menu when clicking outside
-        $(document).click(function(e) {
-          // Removed close menu functionality
         });
 
         // Password visibility toggle
@@ -1475,7 +883,6 @@
           const passwordField = $(this).siblings('input');
           const icon = $(this).find('i');
           
-          // Toggle password visibility
           if (passwordField.attr('type') === 'password') {
             passwordField.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -1484,6 +891,113 @@
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
           }
         });
+
+        // Load room data and update UI
+        function loadRoomData() {
+          $.ajax({
+            url: '/api/roomConfig',
+            method: 'GET',
+            success: function(rooms) {
+              const roomCardsContainer = $('.room-cards');
+              roomCardsContainer.empty();
+              
+              rooms.forEach(room => {
+                const card = $(`
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <h5 class="card-title">${room.name}</h5>
+                      <div class="form-group">
+                        <label>Current Price: <span class="current-price">${room.formattedPrice}</span></label>
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">GH₵</span>
+                          </div>
+                          <input type="number" class="form-control price-input" 
+                                 data-room-type="${room.name}" 
+                                 value="${room.price}" min="0">
+                          <div class="input-group-append">
+                            <button class="btn btn-primary save-price" data-room-type="${room.name}">
+                              Update Price
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control description-input" rows="3">${room.description || ''}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                `);
+                roomCardsContainer.append(card);
+              });
+            },
+            error: function(xhr, status, error) {
+              console.error('Error loading room data:', error);
+              alert('Failed to load room data. Please try again.');
+            }
+          });
+        }
+
+        // Handle room price updates
+        $(document).on('click', '.save-price', function() {
+          const button = $(this);
+          const card = button.closest('.card');
+          const roomName = button.data('room-type');
+          const newPrice = card.find('.price-input').val();
+          const description = card.find('.description-input').val();
+
+          // Validate price
+          if (!newPrice || isNaN(newPrice) || newPrice <= 0) {
+            alert('Please enter a valid price');
+            return;
+          }
+
+          // Disable button and show loading state
+          button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+          $.ajax({
+            url: '/api/updateRoom',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              roomName: roomName,
+              price: parseFloat(newPrice),
+              description: description
+            }),
+            success: function(response) {
+              // Update the current price display
+              card.find('.current-price').text(`GH₵${newPrice} / per night`);
+              
+              // Show success message
+              alert('Room price updated successfully!');
+              
+              // Reload room data to ensure everything is in sync
+              loadRoomData();
+            },
+            error: function(xhr, status, error) {
+              console.error('Error updating room:', error);
+              alert('Failed to update room price. Please try again.');
+            },
+            complete: function() {
+              // Re-enable button and restore text
+              button.prop('disabled', false).text('Update Price');
+            }
+          });
+        });
+
+        // Load bookings when switching to bookings tab
+        $('#bookings-tab').on('shown.bs.tab', function() {
+          loadBookings();
+        });
+
+        // Load room data when the page loads and user is logged in
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+          $('#loginSection').hide();
+          $('#adminDashboard').show();
+          $('.welcome-message').show();
+          loadRoomData();
+        }
       });
     </script>
   </body>
