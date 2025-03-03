@@ -1112,81 +1112,23 @@
         });
 
         // Show/Hide popup functions
-        function showPopup(popup) {
-          popup.fadeIn(200).addClass('active');
-        }
-
-        function hidePopups() {
-          $('.popup').fadeOut(200).removeClass('active');
-        }
-
-        // Close popup when clicking the close button
-        $('.close-popup').on('click', function(e) {
-          e.preventDefault();
-          hidePopups();
-        });
-
-        // Close popup when clicking outside
-        $(document).on('click', function(e) {
-          if (!$(e.target).closest('.popup .content-wrapper').length && !$(e.target).closest('form').length) {
-            hidePopups();
-          }
-        });
-
-        // Prevent popup from closing when clicking inside it
-        $('.popup').on('click', function(e) {
-          e.stopPropagation();
-        });
-
-        // Close error popup when clicking the close button
-        $('.close-error').on('click', function() {
-          hidePopups();
-        });
-
-        // Close success popup when clicking the close button
-        $('.close-success').on('click', function() {
-          hidePopups();
-          // Reset form after successful booking
-          $('#booking-form')[0].reset();
-        });
-
-        // Function to get URL parameters
-        function getUrlParams() {
-          // Get the search string from after the hash
-          const hashIndex = window.location.href.indexOf('#');
-          const searchString = window.location.href.substring(hashIndex).split('?')[1];
-          if (!searchString) return {};
-          
-          const params = new URLSearchParams(searchString);
-          return {
-            checkin: params.get('checkin'),
-            checkout: params.get('checkout'),
-            adults: params.get('adults'),
-            children: params.get('children'),
-            room: params.get('room')
-          };
-        }
-
-        // Auto-fill form if parameters exist
-        function autoFillForm() {
-          const params = getUrlParams();
-          
-          if (params.checkin) $('#checkin_date').val(params.checkin);
-          if (params.checkout) $('#checkout_date').val(params.checkout);
-          if (params.adults) $('#adults').val(params.adults);
-          if (params.children) $('#children').val(params.children);
-          if (params.room) $('#room_type').val(params.room);
-          
-          // Scroll to form if there's a hash in URL
-          if (window.location.hash.includes('booking-form')) {
-            setTimeout(() => {
-              document.querySelector('#booking-form').scrollIntoView({ behavior: 'smooth' });
-            }, 500);
+        function showPopup(selector) {
+          if (typeof selector === 'string') {
+            $(selector).fadeIn();
+            $('.popup-overlay').fadeIn();
+          } else if (selector instanceof jQuery) {
+            selector.fadeIn();
+            $('.popup-overlay').fadeIn();
           }
         }
 
-        // Call auto-fill on page load
-        autoFillForm();
+        function hidePopup() {
+          $('.popup').fadeOut();
+          $('.popup-overlay').fadeOut();
+        }
+
+        // Close popup when clicking overlay or close button
+        $('.popup-overlay, .close-popup').on('click', hidePopup);
       });
     </script>
   </body>
