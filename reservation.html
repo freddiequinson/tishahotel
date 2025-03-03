@@ -431,7 +431,7 @@
                     <label for="email" class="font-weight-bold text-black">Email</label>
                     <div class="field-icon-wrap">
                       <div class="icon"><span class="icon-envelope"></span></div>
-                      <input type="email" id="email" class="form-control" placeholder="awurama@email.com">
+                      <input type="email" id="email" class="form-control" placeholder="Enter your email">
                     </div>
                   </div>
                 </div>
@@ -680,34 +680,34 @@
         }
 
         // Show receipt
-        function showReceipt(bookingDetails, formData) {
+        function showReceipt(bookingData) {
           const receipt = $('#receiptPopup');
-          const nights = calculateNights(formData.checkinDate, formData.checkoutDate);
+          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
 
           // Update receipt content
           receipt.find('.booking-dates').html(`
-            <p>Booking #: ${formData.bookingNumber}</p>
-            <p>Check-in: ${formData.checkinDate}<br>
-            Check-out: ${formData.checkoutDate}<br>
+            <p>Booking #: ${bookingData.bookingNumber}</p>
+            <p>Check-in: ${bookingData.checkinDate}<br>
+            Check-out: ${bookingData.checkoutDate}<br>
             Duration: ${nights} night${nights > 1 ? 's' : ''}</p>
           `);
 
           receipt.find('.guest-info').html(`
             <h6>Guest Information:</h6>
             <p>
-              Name: ${formData.firstName} ${formData.lastName}<br>
-              Phone: ${formData.phone}<br>
-              ${formData.email ? 'Email: ' + formData.email + '<br>' : ''}
-              Adults: ${formData.adults}<br>
-              Children: ${formData.children}
+              Name: ${bookingData.firstName} ${bookingData.lastName}<br>
+              Phone: ${bookingData.phone}<br>
+              ${bookingData.email ? 'Email: ' + bookingData.email + '<br>' : ''}
+              Adults: ${bookingData.adults}<br>
+              Children: ${bookingData.children}
             </p>
           `);
 
           receipt.find('.room-details').html(`
             <h6>Room Details:</h6>
             <p>
-              Room Type: ${bookingDetails.roomName}<br>
-              Number of Rooms: ${bookingDetails.numberOfRooms}
+              Room Type: ${bookingData.roomType}<br>
+              Number of Rooms: ${bookingData.numberOfRooms}
             </p>
           `);
 
@@ -715,22 +715,18 @@
             <h6>Price Breakdown:</h6>
             <div class="price-item">
               <span>Room Rate (per night)</span>
-              <span>${formatCurrency(bookingDetails.basePrice)}</span>
+              <span>${formatCurrency(bookingData.basePrice)}</span>
             </div>
             <div class="price-item">
-              <span>${bookingDetails.roomName} x ${bookingDetails.numberOfRooms} rooms x ${nights} nights</span>
-              <span>${formatCurrency(bookingDetails.totalPrice)}</span>
+              <span>${bookingData.roomType} x ${bookingData.numberOfRooms} rooms x ${nights} nights</span>
+              <span>${formatCurrency(bookingData.totalPrice)}</span>
             </div>
           `);
 
-          receipt.find('.total-price').text(formatCurrency(bookingDetails.totalPrice));
+          receipt.find('.total-price').text(formatCurrency(bookingData.totalPrice));
 
           // Store booking details for confirmation
-          receipt.data('bookingDetails', {
-            ...formData,
-            totalAmount: bookingDetails.totalPrice,
-            numberOfRooms: bookingDetails.numberOfRooms
-          });
+          receipt.data('bookingDetails', bookingData);
 
           showPopup(receipt);
         }
@@ -788,7 +784,7 @@
           doc.text("Payment Details", 20, 180);
           const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
           doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 190);
-          doc.text(`Total Amount: ${formatCurrencyPDF(bookingData.totalAmount)}`, 20, 200);
+          doc.text(`Total Amount: ${formatCurrencyPDF(bookingData.totalPrice)}`, 20, 200);
           
           // Add payment notice
           doc.setTextColor(220, 53, 69); // Red color for warning
@@ -813,7 +809,7 @@
           e.preventDefault();
           
           // Validate required fields
-          var requiredFields = ['first_name', 'last_name', 'email', 'phone', 'checkin_date', 'checkout_date', 'adults', 'children', 'room_type'];
+          var requiredFields = ['first_name', 'last_name', 'phone', 'checkin_date', 'checkout_date', 'adults', 'children', 'room_type'];
           var isValid = true;
           
           requiredFields.forEach(function(field) {
@@ -833,21 +829,21 @@
 
           // Get form data
           var formData = {
-            first_name: $('#first_name').val(),
-            last_name: $('#last_name').val(),
-            email: $('#email').val(),
+            firstName: $('#first_name').val(),
+            lastName: $('#last_name').val(),
+            email: $('#email').val() || 'Not provided',
             phone: $('#phone').val(),
-            checkin_date: $('#checkin_date').val(),
-            checkout_date: $('#checkout_date').val(),
+            checkinDate: $('#checkin_date').val(),
+            checkoutDate: $('#checkout_date').val(),
             adults: parseInt($('#adults').val()),
             children: parseInt($('#children').val()),
-            room_type: $('#room_type').val(),
-            special_request: $('#special_request').val()
+            roomType: $('#room_type').val(),
+            specialRequest: $('#special_request').val()
           };
 
           // Calculate booking details
-          var checkinDate = new Date(formData.checkin_date);
-          var checkoutDate = new Date(formData.checkout_date);
+          var checkinDate = new Date(formData.checkinDate);
+          var checkoutDate = new Date(formData.checkoutDate);
           var nights = calculateNights(checkinDate, checkoutDate);
           
           if (nights <= 0) {
@@ -856,18 +852,21 @@
           }
 
           var booking = calculateBooking(
-            formData.room_type,
+            formData.roomType,
             formData.adults,
             formData.children,
             nights
           );
 
-          // Show receipt with booking details
-          showReceipt({
+          var bookingData = {
+            ...formData,
             ...booking,
             bookingNumber: generateBookingNumber(),
             nights: nights
-          }, formData);
+          };
+
+          // Show receipt with booking details
+          showReceipt(bookingData);
         });
 
         // Handle booking confirmation
@@ -882,14 +881,14 @@
             first_name: bookingData.firstName,
             last_name: bookingData.lastName,
             booking_number: bookingData.bookingNumber,
-            checkin_date: bookingData.checkin_date,
-            checkout_date: bookingData.checkout_date,
+            checkin_date: bookingData.checkinDate,
+            checkout_date: bookingData.checkoutDate,
             adults: bookingData.adults,
             children: bookingData.children,
-            room_type: bookingData.room_type,
+            room_type: bookingData.roomType,
             phone: bookingData.phone,
             email: bookingData.email || 'Not provided',
-            total_amount: formatCurrency(bookingData.totalAmount),
+            total_amount: formatCurrency(bookingData.totalPrice),
             number_of_rooms: bookingData.numberOfRooms
           };
 
