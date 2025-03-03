@@ -1,1122 +1,243 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Reservations - Tisha Hotel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Book your stay at Tisha Hotel - Comfortable rooms in Asuaba, next to Adeiso" />
-    <meta name="keywords" content="hotel, Tisha, Asuaba, Adeiso, accommodation, booking, reservation" />
-    <meta name="author" content="" />
-    <link rel="icon" type="image/jpg" href="assets/hotellogo.jpg">
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=|Roboto+Sans:400,700|Playfair+Display:400,700">
+<style>
+  /* Existing styles */
+  
+  /* Confirmation popup styles */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+  }
 
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/aos.css">
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="css/jquery.timepicker.css">
-    <link rel="stylesheet" href="css/fancybox.min.css">
+  .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    max-width: 500px;
+    width: 90%;
+  }
+
+  .popup-content {
+    text-align: left;
+  }
+
+  .popup-buttons {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .popup-buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+  }
+
+  .booking-summary {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  .booking-summary h4 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .booking-summary p {
+    margin: 10px 0;
+    color: #666;
+  }
+
+  .booking-summary p strong {
+    color: #333;
+    margin-right: 5px;
+  }
+</style>
+
+<script>
+  // Create overlay if it doesn't exist
+  let overlay = $('.popup-overlay');
+  if (overlay.length === 0) {
+    overlay = $('<div class="popup-overlay"></div>');
+    $('body').append(overlay);
+  }
+
+  // Form submission
+  $('#reservation-form').on('submit', function(e) {
+    e.preventDefault();
     
-    <link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
-    <link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    try {
+      // Get form data
+      var formData = {
+        firstName: $('#first_name').val().trim(),
+        lastName: $('#last_name').val().trim(),
+        email: $('#email').val().trim() || 'Not provided',
+        phone: $('#phone').val().trim(),
+        checkinDate: $('#checkin_date').val(),
+        checkoutDate: $('#checkout_date').val(),
+        adults: parseInt($('#adults').val()),
+        children: parseInt($('#children').val()),
+        roomType: $('#room_type').val(),
+        bookingNumber: generateBookingNumber(),
+        numberOfRooms: 1
+      };
 
-    <!-- Theme Style -->
-    <link rel="stylesheet" href="css/style.css">
+      // Validate required fields
+      const requiredFields = {
+        firstName: 'First Name',
+        lastName: 'Last Name',
+        phone: 'Phone Number',
+        checkinDate: 'Check-in Date',
+        checkoutDate: 'Check-out Date',
+        adults: 'Number of Adults',
+        children: 'Number of Children',
+        roomType: 'Room Type'
+      };
 
-    <style>
-      /* Form styles */
-      .block-32 {
-        background: #fff;
-        padding: 30px;
-        -webkit-box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
-        box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
-      }
-      
-      .field-icon-wrap {
-        position: relative;
-      }
-      
-      .field-icon-wrap .form-control {
-        position: relative;
-        padding-right: 40px;
-      }
-      
-      .field-icon-wrap .icon {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
-        z-index: 2;
-      }
-
-      /* Popup styles */
-      .popup {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        overflow-y: auto;
-      }
-
-      .popup .content-wrapper {
-        position: relative;
-        background: white;
-        width: 90%;
-        max-width: 500px;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      @media (max-width: 768px) {
-        .popup .content-wrapper {
-          width: 95%;
-          margin: 10px auto;
-          padding: 15px;
+      const missingFields = [];
+      for (const [field, label] of Object.entries(requiredFields)) {
+        if (!formData[field]) {
+          missingFields.push(label);
+          $(`#${field}`).addClass('is-invalid');
+        } else {
+          $(`#${field}`).removeClass('is-invalid');
         }
       }
 
-      .close-popup {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
+      if (missingFields.length > 0) {
+        throw new Error(`Please fill in the following fields: ${missingFields.join(', ')}`);
       }
 
-      /* Receipt styles */
-      .receipt-container {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 15px 0;
-        text-align: left;
-        font-size: 14px;
-      }
-
-      @media (max-width: 768px) {
-        .receipt-container {
-          padding: 10px;
-          font-size: 13px;
-        }
-      }
-
-      .receipt-header {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-      }
-
-      .receipt-header h5 {
-        margin-bottom: 5px;
-      }
-
-      .receipt-details > div {
-        margin-bottom: 10px;
-      }
-
-      .receipt-details h6 {
-        margin-bottom: 5px;
-        color: #333;
-      }
-
-      .price-breakdown {
-        border-top: 1px dashed #eee;
-        border-bottom: 1px dashed #eee;
-        padding: 8px 0;
-        margin: 8px 0;
-      }
-
-      .price-item {
-        display: flex;
-        justify-content: space-between;
-        margin: 3px 0;
-      }
-
-      .total-section {
-        text-align: right;
-        padding-top: 8px;
-        font-size: 16px;
-      }
-
-      .receipt-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        margin-top: 15px;
-      }
-
-      @media (max-width: 768px) {
-        .receipt-actions {
-          flex-direction: column;
-        }
-
-        .receipt-actions button {
-          width: 100%;
-          margin: 5px 0;
-        }
-      }
-
-      .confirm-booking, .cancel-booking {
-        padding: 8px 20px;
-        min-width: 120px;
-      }
-
-      .text-danger {
-        color: #dc3545;
-      }
+      // Calculate booking details
+      const checkinDate = new Date(formData.checkinDate);
+      const checkoutDate = new Date(formData.checkoutDate);
+      const nights = calculateNights(checkinDate, checkoutDate);
       
-      .site-logo {
-        display: flex;
-        align-items: center;
+      if (nights <= 0) {
+        throw new Error('Please select valid check-in and check-out dates');
       }
+
+      // Calculate total amount based on room type
+      const roomConfig = {
+        'junior': { name: 'Junior Suite', price: 350 },
+        'standard': { name: 'Standard Room', price: 200 },
+        'master': { name: 'Master Room', price: 300 }
+      };
       
-      .site-logo img {
-        height: 50px;
-        margin-right: 10px;
-      }
-      
-      .site-logo a {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: var(--primary-color);
-      }
+      const roomType = roomConfig[formData.roomType.toLowerCase()];
+      const roomPrice = roomType ? roomType.price : 0;
+      const totalPrice = roomPrice * nights * formData.numberOfRooms;
 
-      .site-logo .mobile-break {
-        display: none;
-      }
-      
-      @media (max-width: 991.98px) {
-        .site-logo a {
-          display: flex;
-          align-items: center;
-          font-size: 24px;
-        }
-        .site-logo img {
-          height: 40px;
-          margin-right: 10px;
-        }
-        .site-logo .mobile-break {
-          display: inline;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    
-    <header class="site-header js-site-header">
-      <div class="container-fluid">
-        <div class="row align-items-center">
-          <div class="col-6 col-lg-4 site-logo" data-aos="fade">
-            <a href="index.html">
-              <img src="assets/hotellogo.jpg" alt="Tisha Hotel Logo">
-              <span>Tisha<span class="mobile-break"><br></span> Hotel</span>
-            </a>
-          </div>
-          <div class="col-6 col-lg-8">
-            <div class="site-menu-toggle js-site-menu-toggle" data-aos="fade">
-              <span></span>
-              <span></span>
-              <span></span>
+      // Create and show the confirmation dialog
+      const confirmDialog = $('<div>')
+        .addClass('popup confirmation-popup')
+        .html(`
+          <div class="popup-content">
+            <div class="booking-summary">
+              <h4>Booking Summary</h4>
+              <p><strong>Guest:</strong> ${formData.firstName} ${formData.lastName}</p>
+              <p><strong>Room Type:</strong> ${roomType ? roomType.name : 'Unknown Room'}</p>
+              <p><strong>Check-in:</strong> ${formData.checkinDate}</p>
+              <p><strong>Check-out:</strong> ${formData.checkoutDate}</p>
+              <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
+              <p><strong>Total Amount:</strong> ${formatCurrency(totalPrice)}</p>
             </div>
-
-            <div class="site-navbar js-site-navbar">
-              <nav role="navigation">
-                <div class="container">
-                  <div class="row full-height align-items-center">
-                    <div class="col-md-6 mx-auto">
-                      <ul class="list-unstyled menu">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="rooms.html">Rooms</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                        <li class="active"><a href="reservation.html">Reservation</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </nav>
+            <div class="popup-buttons">
+              <button class="btn btn-success confirm-booking">Confirm Booking</button>
+              <button class="btn btn-secondary cancel-booking">Cancel</button>
             </div>
           </div>
-        </div>
-      </div>
-    </header>
+        `);
 
-    <section class="site-hero inner-page overlay" style="background-image: url('assets/hotelatnight.jpg');" data-stellar-background-ratio="0.5">
-      <div class="container">
-        <div class="row site-hero-inner justify-content-center align-items-center">
-          <div class="col-md-10 text-center" data-aos="fade">
-            <h1 class="heading mb-3">Reservation</h1>
-            <ul class="custom-breadcrumbs mb-4">
-              <li><a href="index.html">Home</a></li>
-              <li>&bullet;</li>
-              <li>Reservation</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
+      // Add to body and show
+      $('body').append(confirmDialog);
+      overlay.fadeIn();
+      confirmDialog.fadeIn();
 
-    <section class="section bg-light">
-      <div class="container">
-        <div class="row justify-content-center text-center mb-5">
-          <div class="col-md-8">
-            <h2 class="heading" data-aos="fade-up">Experience Luxury at Tisha Hotel</h2>
-            <p class="lead" data-aos="fade-up" data-aos-delay="100">Book your stay with us and enjoy world-class amenities, exceptional service, and unforgettable moments.</p>
-          </div>
-        </div>
-
-        <div class="row" data-aos="fade-up" data-aos-delay="200">
-          <div class="col-md-4 mb-4">
-            <div class="card h-100 text-center p-4">
-              <div class="card-body">
-                <i class="fas fa-concierge-bell mb-3" style="font-size: 2.5rem; color: #b99365;"></i>
-                <h3 class="h4 mb-3">Premium Service</h3>
-                <p>Our dedicated staff is available 24/7 to ensure your stay exceeds expectations.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card h-100 text-center p-4">
-              <div class="card-body">
-                <i class="fas fa-bed mb-3" style="font-size: 2.5rem; color: #b99365;"></i>
-                <h3 class="h4 mb-3">Comfortable Rooms</h3>
-                <p>Choose from our selection of well-appointed rooms designed for your comfort.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card h-100 text-center p-4">
-              <div class="card-body">
-                <i class="fas fa-utensils mb-3" style="font-size: 2.5rem; color: #b99365;"></i>
-                <h3 class="h4 mb-3">Fine Dining</h3>
-                <p>Enjoy exquisite meals prepared by our skilled chefs using local ingredients.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row justify-content-center text-center mt-5" data-aos="fade-up" data-aos-delay="300">
-          <div class="col-md-8">
-            <div class="alert alert-info" role="alert">
-              <h4 class="alert-heading mb-3"><i class="fas fa-info-circle"></i> Booking Information</h4>
-              <p class="mb-2">• Check-in time: 2:00 PM</p>
-              <p class="mb-2">• Check-out time: 12:00 PM</p>
-              <p class="mb-2">• Early check-in and late check-out available upon request</p>
-              <p class="mb-0">• Free cancellation up to 24 hours before check-in</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="row">
-          <!-- <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="row">
-              <div class="col-md-12">
-                <h2 class="heading">Room Types</h2>
-                <div class="room-info mb-4">
-                  <h3>Standard Room</h3>
-                  <p>Our comfortable Standard Room comes with:</p>
-                  <ul class="room-features">
-                    <li><i class="fa fa-bed"></i> Double Bed</li>
-                    <li><i class="fa fa-tv"></i> Flat-screen TV</li>
-                    <li><i class="fa fa-snowflake"></i> Air Conditioning</li>
-                    <li><i class="fa fa-wifi"></i> Free Wi-Fi</li>
-                    <li><i class="fa fa-bath"></i> Private Bathroom</li>
-                  </ul>
-                  <p class="price">GH₵220 per night</p>
-                </div>
-                
-                <div class="room-info mb-4">
-                  <h3>Master Room</h3>
-                  <p>Our luxurious Master Room includes:</p>
-                  <ul class="room-features">
-                    <li><i class="fa fa-bed"></i> King-size Bed</li>
-                    <li><i class="fa fa-tv"></i> 50" Smart TV</li>
-                    <li><i class="fa fa-snowflake"></i> Air Conditioning</li>
-                    <li><i class="fa fa-wifi"></i> High-speed Wi-Fi</li>
-                    <li><i class="fa fa-bath"></i> Deluxe Bathroom</li>
-                    <li><i class="fa fa-couch"></i> Seating Area</li>
-                    <li><i class="fa fa-coffee"></i> Mini Bar</li>
-                  </ul>
-                  <p class="price">GH₵270 per night</p>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="row">
-              <div class="col-md-12">
-                <h2 class="heading">Make a Reservation</h2>
-                <p class="lead">For reservations, please contact us:</p>
-                <div class="contact-methods">
-                  <p><i class="fa fa-phone"></i> <a href="tel:+233247491908">+233 24 749 1908</a><br>
-                     <i class="fa fa-phone"></i> <a href="tel:+233241703838">+233 24 170 3838</a></p>
-                  <p><a href="https://wa.me/233247491908" class="btn btn-success"><i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp</a></p>
-                </div>
-                <div class="reservation-info mt-4">
-                  <h3>Important Information</h3>
-                  <ul>
-                    <li>Check-in time: 2:00 PM</li>
-                    <li>Check-out time: 12:00 PM</li>
-                    <li>Early check-in and late check-out available upon request</li>
-                    <li>50% deposit required to confirm booking</li>
-                    <li>Free cancellation up to 24 hours before check-in</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- <section class="section bg-white">
-      <div class="container">
-        <div class="row justify-content-center text-center mb-5">
-          <div class="col-md-8">
-            <h2 class="heading" data-aos="fade-up">Our Room Types</h2>
-            <p class="lead" data-aos="fade-up" data-aos-delay="100">Choose from our carefully designed rooms and suites</p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-            <div class="card h-100">
-              <img src="images/standard_room.jpg" class="card-img-top" alt="Standard Room" style="height: 200px; object-fit: cover;">
-              <div class="card-body">
-                <h3 class="h4 mb-3">Standard Room</h3>
-                <p class="text-muted mb-3">From GH₵200/night</p>
-                <ul class="list-unstyled mb-4">
-                  <li><i class="fas fa-check text-success mr-2"></i> Queen-size bed</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Air conditioning</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Private bathroom</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Free Wi-Fi</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Smart TV</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-            <div class="card h-100">
-              <img src="images/junior_suite.jpg" class="card-img-top" alt="Junior Suite" style="height: 200px; object-fit: cover;">
-              <div class="card-body">
-                <h3 class="h4 mb-3">Junior Suite</h3>
-                <p class="text-muted mb-3">From GH₵350/night</p>
-                <ul class="list-unstyled mb-4">
-                  <li><i class="fas fa-check text-success mr-2"></i> King-size bed</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Separate living area</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Mini kitchen</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Premium amenities</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> City view</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Work desk</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-            <div class="card h-100">
-              <img src="images/master_room.jpg" class="card-img-top" alt="Master Room" style="height: 200px; object-fit: cover;">
-              <div class="card-body">
-                <h3 class="h4 mb-3">Master Room</h3>
-                <p class="text-muted mb-3">From GH₵300/night</p>
-                <ul class="list-unstyled mb-4">
-                  <li><i class="fas fa-check text-success mr-2"></i> King-size bed</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Balcony access</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Luxury bathroom</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Room service</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Garden view</li>
-                  <li><i class="fas fa-check text-success mr-2"></i> Seating area</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row justify-content-center mt-4">
-          <div class="col-md-8">
-            <div class="alert alert-light border text-center" role="alert">
-              <i class="fas fa-info-circle text-primary mr-2"></i>
-              All rooms include: Smart TV with satellite channels, Free parking, 24/7 reception service, and Daily housekeeping
-            </div>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <section class="section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="block-32" id="booking-form">
-              <form action="#" id="reservation-form">
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-lg-0">
-                    <label for="first_name" class="font-weight-bold text-black">First Name <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-person"></span></div>
-                      <input type="text" id="first_name" class="form-control" placeholder="Enter first name" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="last_name" class="font-weight-bold text-black">Last Name <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-person"></span></div>
-                      <input type="text" id="last_name" class="form-control" placeholder="Enter last name" required>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-lg-0">
-                    <label for="checkin_date" class="font-weight-bold text-black">Check In <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-calendar"></span></div>
-                      <input type="text" id="checkin_date" class="form-control" placeholder="Select date" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="checkout_date" class="font-weight-bold text-black">Check Out <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-calendar"></span></div>
-                      <input type="text" id="checkout_date" class="form-control" placeholder="Select date" required>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-lg-0">
-                    <label for="adults" class="font-weight-bold text-black">Adults <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-person"></span></div>
-                      <select name="adults" id="adults" class="form-control" required>
-                        <option value="">Select number of adults...</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="children" class="font-weight-bold text-black">Children <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-person"></span></div>
-                      <select name="children" id="children" class="form-control" required>
-                        <option value="">Select number of children...</option>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3 mb-lg-0">
-                    <label for="room_type" class="font-weight-bold text-black">Room Type <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-chevron-down"></span></div>
-                      <select name="room_type" id="room_type" class="form-control" required>
-                        <option value="">Select room type...</option>
-                        <option value="junior">Junior Suite</option>
-                        <option value="standard">Standard Room</option>
-                        <option value="master">Master Room</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="phone" class="font-weight-bold text-black">Phone Number <span class="text-danger">*</span></label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-phone"></span></div>
-                      <input type="tel" id="phone" class="form-control" placeholder="+233 XX XXX XXXX" required>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-12 mb-3">
-                    <label for="email" class="font-weight-bold text-black">Email</label>
-                    <div class="field-icon-wrap">
-                      <div class="icon"><span class="icon-envelope"></span></div>
-                      <input type="email" id="email" class="form-control" placeholder="Enter your email">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-12">
-                    <button type="submit" class="btn btn-primary btn-block text-white">Book Now</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Success Popup -->
-    <div class="popup" id="availabilityPopup">
-      <div class="content-wrapper">
-        <span class="close-popup">&times;</span>
-        <div class="text-center">
-          <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
-          <h4>Booking Confirmed!</h4>
-          <p>Thank you <span id="guestName"></span> for your booking.</p>
-          <p>Your receipt has been downloaded.</p>
-          <p>We will contact you shortly to confirm payment details.</p>
-          <div class="mt-4">
-            <a href="https://wa.me/233241703838" class="btn btn-success mb-2" style="width: 200px;">
-              <i class="fab fa-whatsapp"></i> Book via WhatsApp
-            </a>
-            <br>
-            <button class="btn btn-secondary close-success" style="width: 200px;">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error Popup -->
-    <div class="popup" id="errorPopup">
-      <div class="content-wrapper">
-        <span class="close-popup">&times;</span>
-        <h4 class="text-danger">Error</h4>
-        <p id="errorMessage"></p>
-        <button class="btn btn-secondary close-error">Close</button>
-      </div>
-    </div>
-
-    <!-- Receipt Popup -->
-    <div class="popup" id="receiptPopup">
-      <span class="close-popup">&times;</span>
-      <div class="content-wrapper">
-        <h4>Booking Summary</h4>
-        <div class="receipt-container">
-          <div class="receipt-header">
-            <h5>Tisha Hotel</h5>
-            <p class="booking-dates"></p>
-          </div>
-          <div class="receipt-details">
-            <div class="guest-info"></div>
-            <div class="room-details"></div>
-            <div class="price-breakdown"></div>
-            <div class="total-section">
-              <h5>Total Amount: <span class="total-price"></span></h5>
-            </div>
-          </div>
-        </div>
-        <div class="receipt-actions">
-          <button class="btn btn-success confirm-booking">Confirm Booking</button>
-          <button class="btn btn-secondary cancel-booking">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <footer class="section footer-section py-3">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-6 mb-3">
-            <div class="row text-center">
-              <div class="col-6">
-                <ul class="list-unstyled link mb-0">
-                  <li class="mb-1"><a href="about.html"><i class="fa-solid fa-circle-info mr-2"></i>About Us</a></li>
-                  <li class="mb-1"><a href="reservation.html"><i class="fa-solid fa-calendar-days mr-2"></i>Reservation</a></li>
-                </ul>
-              </div>
-              <div class="col-6">
-                <ul class="list-unstyled link mb-0">
-                  <li class="mb-1"><a href="rooms.html"><i class="fa-solid fa-bed mr-2"></i>Our Rooms</a></li>
-                  <!-- <li class="mb-1"><a href="rooms.html#standard"><i class="fa-regular fa-star mr-2"></i>Standard Room</a></li>
-                  <li class="mb-1"><a href="rooms.html#master"><i class="fa-solid fa-star mr-2"></i>Master Room</a></li> -->
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 mb-3">
-            <div class="contact-info text-center">
-              <p class="mb-2">
-                <a href="https://maps.app.goo.gl/RUQbYbZCVQMBNGQc8" target="_blank" class="text-dark">
-                  <i class="fa-solid fa-location-dot h5 mr-2 text-primary"></i>Asuaba, next to Adeiso
-                </a>
-              </p>
-              <p class="mb-2"><i class="fa-solid fa-envelope h5 mr-2 text-primary"></i>Ghana Post: GW-2338-8629</p>
-              <p class="mb-2">
-                <a href="tel:+233241703838" class="text-dark">
-                  <i class="fa-solid fa-phone h5 mr-2 text-primary"></i>+233 24 170 3838
-                </a>
-                <a href="tel:+233247491908" class="text-dark">
-                  <i class="fa-solid fa-phone h5 mr-2 text-primary"></i>+233 24 749 1908
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 text-center">
-            <div class="social-icons">
-              <a href="#" class="social-button"><i class="fa-brands fa-tiktok" aria-hidden="true"></i></a>
-              <a href="#" class="social-button"><i class="fa-brands fa-facebook" aria-hidden="true"></i></a>
-              <a href="#" class="social-button"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
-              <a href="https://wa.me/233241703838" class="social-button"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-      window.jsPDF = window.jspdf.jsPDF;
-    </script>
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <script src="js/jquery-migrate-3.0.1.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
-    <script src="js/jquery.fancybox.min.js"></script>
-    
-    
-    <script src="js/aos.js"></script>
-    
-    <script src="js/bootstrap-datepicker.js"></script> 
-    <script src="js/jquery.timepicker.min.js"></script> 
-
-    
-
-    <script src="js/main.js"></script>
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-      (function() {
-        emailjs.init("uyzj8ytbBxqbveQ48");
-      })();
-    </script>
-
-    <script>
-      $(document).ready(function(){
-        // Set API base URL based on environment
-        const API_BASE_URL = window.location.origin;
+      // Handle confirm booking
+      confirmDialog.find('.confirm-booking').on('click', function() {
+        overlay.fadeOut();
+        confirmDialog.fadeOut(function() {
+          $(this).remove();
+        });
         
-        // Room configuration
-        const ROOM_CONFIG = {
-          'junior': { name: 'Junior Suite', price: 350 },
-          'standard': { name: 'Standard Room', price: 200 },
-          'master': { name: 'Master Room', price: 300 }
-        };
+        // Show loading state
+        const submitBtn = $('#reservation-form button[type="submit"]');
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
-        // Initialize date pickers with validation
-        var today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Update formData with calculated values
+        formData.totalAmount = totalPrice;
+        formData.nights = nights;
 
-        $('#checkin_date').datepicker({
-          'format': 'mm/dd/yyyy',
-          'autoclose': true,
-          'startDate': today
-        });
-
-        $('#checkout_date').datepicker({
-          'format': 'mm/dd/yyyy',
-          'autoclose': true
-        });
-
-        // Calculate number of nights between dates
-        function calculateNights(checkin, checkout) {
-          const oneDay = 24 * 60 * 60 * 1000;
-          const checkInDate = new Date(checkin);
-          const checkOutDate = new Date(checkout);
-          return Math.round(Math.abs((checkOutDate - checkInDate) / oneDay));
-        }
-
-        // Calculate required rooms and total price
-        function calculateBooking(roomType, adults, children, nights) {
-          const config = ROOM_CONFIG[roomType.toLowerCase()];
-          let rooms = 1;
-          let remainingAdults = adults;
-          let remainingChildren = children;
-          
-          // Calculate additional rooms needed
-          while (remainingAdults > config.maxAdults || remainingChildren > config.maxChildren) {
-            rooms++;
-            remainingAdults = Math.max(0, remainingAdults - config.maxAdults);
-            remainingChildren = Math.max(0, remainingChildren - config.maxChildren);
-          }
-
-          return {
-            basePrice: config.price,
-            numberOfRooms: rooms,
-            totalPrice: config.price * rooms * nights,
-            nights: nights,
-            roomName: config.name
-          };
-        }
-
-        // Format currency for PDF
-        function formatCurrencyPDF(amount) {
-          if (amount === undefined || amount === null) {
-            return 'GHS 0.00';
-          }
-          return `GHS ${parseFloat(amount).toFixed(2)}`;
-        }
-
-        // Format currency for display
-        function formatCurrency(amount) {
-          if (amount === undefined || amount === null) {
-            return 'GHS 0.00';
-          }
-          return `GHS ${parseFloat(amount).toFixed(2)}`;
-        }
-
-        // Show receipt
-        function showReceipt(bookingData) {
-          const receipt = $('#receiptPopup');
-          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
-          const roomConfig = {
-            'junior': { name: 'Junior Suite', price: 350 },
-            'standard': { name: 'Standard Room', price: 200 },
-            'master': { name: 'Master Room', price: 300 }
-          };
-          
-          const roomType = roomConfig[bookingData.roomType.toLowerCase()];
-          const roomPrice = roomType ? roomType.price : 0;
-          const totalPrice = roomPrice * nights * bookingData.numberOfRooms;
-
-          // Update receipt content
-          receipt.find('#receipt-booking-number').text(bookingData.bookingNumber);
-          receipt.find('#receipt-guest-name').text(`${bookingData.firstName} ${bookingData.lastName}`);
-          receipt.find('#receipt-checkin').text(bookingData.checkinDate);
-          receipt.find('#receipt-checkout').text(bookingData.checkoutDate);
-          receipt.find('#receipt-nights').text(nights);
-          receipt.find('#receipt-room-type').text(roomType ? roomType.name : 'Unknown Room');
-          receipt.find('#receipt-room-rate').text(formatCurrency(roomPrice));
-          receipt.find('#receipt-rooms').text(bookingData.numberOfRooms);
-          receipt.find('#receipt-total').text(formatCurrency(totalPrice));
-
-          // Show the receipt
-          showPopup('#receiptPopup');
-        }
-
-        // Download receipt
-        function downloadReceipt(bookingData) {
-          const doc = new jsPDF();
-          const roomConfig = {
-            'junior': { name: 'Junior Suite', price: 350 },
-            'standard': { name: 'Standard Room', price: 200 },
-            'master': { name: 'Master Room', price: 300 }
-          };
-          
-          const roomType = roomConfig[bookingData.roomType.toLowerCase()];
-          const roomPrice = roomType ? roomType.price : 0;
-          const nights = calculateNights(bookingData.checkinDate, bookingData.checkoutDate);
-          const totalPrice = roomPrice * nights * bookingData.numberOfRooms;
-
-          // Set up the PDF
-          doc.setFontSize(20);
-          doc.text("Tisha Hotel", 105, 20, { align: "center" });
-          
-          doc.setFontSize(16);
-          doc.text("Booking Receipt", 105, 30, { align: "center" });
-          doc.text(`Booking #: ${bookingData.bookingNumber}`, 105, 40, { align: "center" });
-          
-          // Add guest information
-          doc.setFontSize(14);
-          doc.text("Guest Information", 20, 60);
-          doc.setFontSize(12);
-          doc.text(`Name: ${bookingData.firstName} ${bookingData.lastName}`, 20, 70);
-          doc.text(`Phone: ${bookingData.phone}`, 20, 80);
-          if (bookingData.email && bookingData.email !== 'Not provided') {
-            doc.text(`Email: ${bookingData.email}`, 20, 90);
-          }
-          
-          // Add booking details
-          doc.setFontSize(14);
-          doc.text("Booking Details", 20, 110);
-          doc.setFontSize(12);
-          doc.text(`Check-in: ${bookingData.checkinDate}`, 20, 120);
-          doc.text(`Check-out: ${bookingData.checkoutDate}`, 20, 130);
-          doc.text(`Room Type: ${roomType ? roomType.name : 'Unknown Room'}`, 20, 140);
-          doc.text(`Room Rate: ${formatCurrencyPDF(roomPrice)} per night`, 20, 150);
-          doc.text(`Number of Rooms: ${bookingData.numberOfRooms}`, 20, 160);
-          doc.text(`Duration: ${nights} night${nights > 1 ? 's' : ''}`, 20, 170);
-          doc.text(`Total Amount: ${formatCurrencyPDF(totalPrice)}`, 20, 180);
-          
-          // Add payment notice
-          doc.setTextColor(220, 53, 69); // Red color for warning
-          doc.setFontSize(14);
-          doc.text("PAYMENT PENDING", 105, 200, { align: "center" });
-          doc.setTextColor(0); // Reset to black
-          doc.setFontSize(12);
-          doc.text("Please make payment within 24 hours to confirm your booking.", 105, 210, { align: "center" });
-          
-          // Add footer
-          doc.setFontSize(10);
-          doc.text("Tisha Hotel", 105, 260, { align: "center" });
-          doc.text("Phone: +233 24 749 1908", 105, 265, { align: "center" });
-          doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 270, { align: "center" });
-          
-          // Save the PDF
-          doc.save(`booking-${bookingData.bookingNumber}.pdf`);
-        }
-
-        // Generate booking number
-        function generateBookingNumber() {
-          const date = new Date();
-          const year = date.getFullYear().toString().substr(-2);
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const day = date.getDate().toString().padStart(2, '0');
-          const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-          return `TH${year}${month}${day}-${random}`;
-        }
-
-        // Form submission
-        $('#reservation-form').on('submit', function(e) {
-          e.preventDefault();
-          
-          try {
-            // Get form data
-            var formData = {
-              firstName: $('#first_name').val().trim(),
-              lastName: $('#last_name').val().trim(),
-              email: $('#email').val().trim() || 'Not provided',
-              phone: $('#phone').val().trim(),
-              checkinDate: $('#checkin_date').val(),
-              checkoutDate: $('#checkout_date').val(),
-              adults: parseInt($('#adults').val()),
-              children: parseInt($('#children').val()),
-              roomType: $('#room_type').val(),
-              bookingNumber: generateBookingNumber(),
-              numberOfRooms: 1
-            };
-
-            // Validate required fields
-            const requiredFields = {
-              firstName: 'First Name',
-              lastName: 'Last Name',
-              phone: 'Phone Number',
-              checkinDate: 'Check-in Date',
-              checkoutDate: 'Check-out Date',
-              adults: 'Number of Adults',
-              children: 'Number of Children',
-              roomType: 'Room Type'
-            };
-
-            const missingFields = [];
-            for (const [field, label] of Object.entries(requiredFields)) {
-              if (!formData[field]) {
-                missingFields.push(label);
-                $(`#${field}`).addClass('is-invalid');
-              } else {
-                $(`#${field}`).removeClass('is-invalid');
-              }
-            }
-
-            if (missingFields.length > 0) {
-              throw new Error(`Please fill in the following fields: ${missingFields.join(', ')}`);
-            }
-
-            // Calculate booking details
-            const checkinDate = new Date(formData.checkinDate);
-            const checkoutDate = new Date(formData.checkoutDate);
-            const nights = calculateNights(checkinDate, checkoutDate);
+        // Save booking to server
+        $.ajax({
+          url: '/api/bookings',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(formData),
+          success: function(response) {
+            console.log('Booking successful:', response);
             
-            if (nights <= 0) {
-              throw new Error('Please select valid check-in and check-out dates');
-            }
-
-            // Calculate total amount based on room type
-            const roomConfig = {
-              'junior': { name: 'Junior Suite', price: 350 },
-              'standard': { name: 'Standard Room', price: 200 },
-              'master': { name: 'Master Room', price: 300 }
-            };
+            // Show receipt and download PDF
+            showReceipt(formData);
+            downloadReceipt(formData);
             
-            const roomType = roomConfig[formData.roomType.toLowerCase()];
-            const roomPrice = roomType ? roomType.price : 0;
-            const totalPrice = roomPrice * nights * formData.numberOfRooms;
-
-            // Show booking summary first
-            const summaryHtml = `
-              <div class="booking-summary">
-                <h4>Booking Summary</h4>
-                <p><strong>Guest:</strong> ${formData.firstName} ${formData.lastName}</p>
-                <p><strong>Room Type:</strong> ${roomType ? roomType.name : 'Unknown Room'}</p>
-                <p><strong>Check-in:</strong> ${formData.checkinDate}</p>
-                <p><strong>Check-out:</strong> ${formData.checkoutDate}</p>
-                <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
-                <p><strong>Total Amount:</strong> ${formatCurrency(totalPrice)}</p>
-              </div>
-            `;
-
-            // Show confirmation dialog
-            const confirmDialog = $('<div>')
-              .addClass('popup')
-              .html(`
-                <div class="popup-content">
-                  ${summaryHtml}
-                  <div class="popup-buttons">
-                    <button class="btn btn-success confirm-booking">Confirm Booking</button>
-                    <button class="btn btn-secondary cancel-booking">Cancel</button>
-                  </div>
-                </div>
-              `);
-
-            // Add dialog to body and show it
-            $('body').append(confirmDialog);
-            confirmDialog.fadeIn();
-
-            // Handle confirm booking
-            confirmDialog.find('.confirm-booking').on('click', function() {
-              confirmDialog.fadeOut().remove();
-              
-              // Show loading state
-              const submitBtn = $(this).find('button[type="submit"]');
-              submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
-
-              // Update formData with calculated values
-              formData.totalAmount = totalPrice;
-              formData.nights = nights;
-
-              // Save booking to server
-              $.ajax({
-                url: '/api/bookings',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                success: function(response) {
-                  console.log('Booking successful:', response);
-                  
-                  // Show receipt and download PDF
-                  showReceipt(formData);
-                  downloadReceipt(formData);
-                  
-                  // Show success message
-                  $('#guestName').text(formData.firstName + ' ' + formData.lastName);
-                  showPopup('#availabilityPopup');
-                  
-                  // Reset form
-                  $('#reservation-form')[0].reset();
-                },
-                error: function(xhr, status, error) {
-                  console.error('Booking error:', error);
-                  console.error('Server response:', xhr.responseText);
-                  let errorMessage = 'There was an error processing your booking. Please try again.';
-                  
-                  try {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.error) {
-                      errorMessage = response.error;
-                      if (response.missingFields) {
-                        errorMessage += ': ' + response.missingFields.join(', ');
-                      }
-                    }
-                  } catch (e) {
-                    console.error('Error parsing error response:', e);
-                  }
-                  
-                  alert(errorMessage);
-                },
-                complete: function() {
-                  // Re-enable submit button
-                  submitBtn.prop('disabled', false).text('Book Now');
+            // Show success message
+            $('#guestName').text(formData.firstName + ' ' + formData.lastName);
+            showPopup('#availabilityPopup');
+            
+            // Reset form
+            $('#reservation-form')[0].reset();
+          },
+          error: function(xhr, status, error) {
+            console.error('Booking error:', error);
+            console.error('Server response:', xhr.responseText);
+            let errorMessage = 'There was an error processing your booking. Please try again.';
+            
+            try {
+              const response = JSON.parse(xhr.responseText);
+              if (response.error) {
+                errorMessage = response.error;
+                if (response.missingFields) {
+                  errorMessage += ': ' + response.missingFields.join(', ');
                 }
-              });
-            });
-
-            // Handle cancel booking
-            confirmDialog.find('.cancel-booking').on('click', function() {
-              confirmDialog.fadeOut().remove();
-            });
-
-          } catch (error) {
-            console.error('Form submission error:', error);
-            alert(error.message || 'There was an error processing your booking. Please try again.');
+              }
+            } catch (e) {
+              console.error('Error parsing error response:', e);
+            }
+            
+            alert(errorMessage);
+          },
+          complete: function() {
+            // Re-enable submit button
+            submitBtn.prop('disabled', false).text('Book Now');
           }
         });
-
-        // Handle booking confirmation
-        $('.confirm-booking').on('click', function() {
-          const receipt = $('#receiptPopup');
-          const bookingData = receipt.data('bookingDetails');
-
-          // Prepare email template parameters
-          var templateParams = {
-            to_email: 'theblindfolderr@gmail.com',
-            from_name: bookingData.firstName + ' ' + bookingData.lastName,
-            first_name: bookingData.firstName,
-            last_name: bookingData.lastName,
-            booking_number: bookingData.bookingNumber,
-            checkin_date: bookingData.checkinDate,
-            checkout_date: bookingData.checkoutDate,
-            adults: bookingData.adults,
-            children: bookingData.children,
-            room_type: bookingData.roomType,
-            phone: bookingData.phone,
-            email: bookingData.email || 'Not provided',
-            total_amount: formatCurrency(bookingData.totalPrice),
-            number_of_rooms: bookingData.numberOfRooms
-          };
-
-          // Send email using EmailJS
-          emailjs.send('service_hlgcksm', 'template_12yx168', templateParams)
-            .then(function(response) {
-              hidePopups();
-              $('#guestName').text(bookingData.firstName + ' ' + bookingData.lastName);
-              showPopup('#availabilityPopup');
-              
-              // Download receipt after successful booking
-              downloadReceipt(bookingData);
-            }, function(error) {
-              console.error('Email error:', error);
-              $('#errorMessage').text('Failed to send booking request. Please try again or contact us directly.');
-              showPopup('#errorPopup');
-            });
-        });
-
-        // Handle booking cancellation
-        $('.cancel-booking').on('click', function() {
-          hidePopups();
-        });
-
-        // Show/Hide popup functions
-        function showPopup(selector) {
-          if (typeof selector === 'string') {
-            $(selector).fadeIn();
-            $('.popup-overlay').fadeIn();
-          } else if (selector instanceof jQuery) {
-            selector.fadeIn();
-            $('.popup-overlay').fadeIn();
-          }
-        }
-
-        function hidePopup() {
-          $('.popup').fadeOut();
-          $('.popup-overlay').fadeOut();
-        }
-
-        // Close popup when clicking overlay or close button
-        $('.popup-overlay, .close-popup').on('click', hidePopup);
       });
-    </script>
-  </body>
-</html>
+
+      // Handle cancel booking
+      confirmDialog.find('.cancel-booking').on('click', function() {
+        overlay.fadeOut();
+        confirmDialog.fadeOut(function() {
+          $(this).remove();
+        });
+      });
+
+    } catch (error) {
+      console.error('Form submission error:', error);
+      alert(error.message || 'There was an error processing your booking. Please try again.');
+    }
+  });
+</script>
