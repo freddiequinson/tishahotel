@@ -686,6 +686,9 @@
     </footer>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      window.jsPDF = window.jspdf.jsPDF;
+    </script>
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -713,43 +716,15 @@
 
     <script>
       $(document).ready(function(){
-        // Load room configuration from server
-        let ROOM_CONFIG = {};
+        // Set API base URL based on environment
+        const API_BASE_URL = window.location.origin;
         
-        $.ajax({
-          url: window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000/api/roomConfig'
-            : 'https://tishahotel.onrender.com/api/roomConfig',
-          method: 'GET',
-          success: function(config) {
-            ROOM_CONFIG = config;
-            console.log('Room config loaded:', ROOM_CONFIG);
-          },
-          error: function(xhr, status, error) {
-            console.error('Error loading room config:', error);
-            // Fallback to default configuration if server is unavailable
-            ROOM_CONFIG = {
-              junior: {
-                name: 'Junior Suite',
-                price: 255,
-                maxAdults: 2,
-                maxChildren: 1
-              },
-              standard: {
-                name: 'Standard Room',
-                price: 280,
-                maxAdults: 2,
-                maxChildren: 1
-              },
-              master: {
-                name: 'Master Room',
-                price: 300,
-                maxAdults: 3,
-                maxChildren: 2
-              }
-            };
-          }
-        });
+        // Room configuration
+        const ROOM_CONFIG = {
+          'junior': { name: 'Junior Suite', price: 350 },
+          'standard': { name: 'Standard Room', price: 200 },
+          'master': { name: 'Master Room', price: 300 }
+        };
 
         // Initialize date pickers with validation
         var today = new Date();
@@ -936,67 +911,92 @@
         $('#reservation-form').on('submit', function(e) {
           e.preventDefault();
           
-          // Validate required fields
-          var requiredFields = ['first_name', 'last_name', 'phone', 'checkin_date', 'checkout_date', 'adults', 'children', 'room_type'];
-          var isValid = true;
-          
-          requiredFields.forEach(function(field) {
-            var value = $(`#${field}`).val();
-            if (!value || value.trim() === '') {
-              isValid = false;
-              $(`#${field}`).addClass('is-invalid');
-            } else {
-              $(`#${field}`).removeClass('is-invalid');
+          try {
+            // Validate required fields
+            var requiredFields = ['first_name', 'last_name', 'phone', 'checkin_date', 'checkout_date', 'adults', 'children', 'room_type'];
+            var isValid = true;
+            
+            requiredFields.forEach(function(field) {
+              var value = $(`#${field}`).val();
+              if (!value || value.trim() === '') {
+                isValid = false;
+                $(`#${field}`).addClass('is-invalid');
+              } else {
+                $(`#${field}`).removeClass('is-invalid');
+              }
+            });
+
+            if (!isValid) {
+              alert('Please fill in all required fields');
+              return;
             }
-          });
 
-          if (!isValid) {
-            alert('Please fill in all required fields');
-            return;
+            // Get form data
+            var formData = {
+              firstName: $('#first_name').val(),
+              lastName: $('#last_name').val(),
+              email: $('#email').val() || 'Not provided',
+              phone: $('#phone').val(),
+              checkinDate: $('#checkin_date').val(),
+              checkoutDate: $('#checkout_date').val(),
+              adults: parseInt($('#adults').val()),
+              children: parseInt($('#children').val()),
+              roomType: $('#room_type').val()
+            };
+
+            // Calculate booking details
+            var checkinDate = new Date(formData.checkinDate);
+            var checkoutDate = new Date(formData.checkoutDate);
+            var nights = calculateNights(checkinDate, checkoutDate);
+            
+            if (nights <= 0) {
+              alert('Please select valid check-in and check-out dates');
+              return;
+            }
+
+            var booking = calculateBooking(
+              formData.roomType,
+              formData.adults,
+              formData.children,
+              nights
+            );
+
+            var bookingData = {
+              ...formData,
+              ...booking,
+              bookingNumber: generateBookingNumber(),
+              nights: nights
+            };
+
+            // Save booking to server
+            $.ajax({
+              url: `${API_BASE_URL}/api/bookings`,
+              method: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify(bookingData),
+              success: function(response) {
+                // Show receipt and download PDF
+                showReceipt(bookingData);
+                downloadReceipt(bookingData);
+                
+                // Show success popup
+                $('#guestName').text(formData.firstName + ' ' + formData.lastName);
+                showPopup('#availabilityPopup');
+                
+                // Reset form
+                $('#reservation-form')[0].reset();
+              },
+              error: function(xhr, status, error) {
+                console.error('Booking error:', error);
+                alert('There was an error processing your booking. Please try again.');
+              }
+            });
+          } catch (error) {
+            console.error('Form submission error:', error);
+            alert('There was an error processing your booking. Please try again.');
           }
-
-          // Get form data
-          var formData = {
-            firstName: $('#first_name').val(),
-            lastName: $('#last_name').val(),
-            email: $('#email').val() || 'Not provided',
-            phone: $('#phone').val(),
-            checkinDate: $('#checkin_date').val(),
-            checkoutDate: $('#checkout_date').val(),
-            adults: parseInt($('#adults').val()),
-            children: parseInt($('#children').val()),
-            roomType: $('#room_type').val(),
-            specialRequest: $('#special_request').val()
-          };
-
-          // Calculate booking details
-          var checkinDate = new Date(formData.checkinDate);
-          var checkoutDate = new Date(formData.checkoutDate);
-          var nights = calculateNights(checkinDate, checkoutDate);
-          
-          if (nights <= 0) {
-            alert('Please select valid check-in and check-out dates');
-            return;
-          }
-
-          var booking = calculateBooking(
-            formData.roomType,
-            formData.adults,
-            formData.children,
-            nights
-          );
-
-          var bookingData = {
-            ...formData,
-            ...booking,
-            bookingNumber: generateBookingNumber(),
-            nights: nights
-          };
-
-          // Show receipt with booking details
-          showReceipt(bookingData);
         });
-
+        
         // Handle booking confirmation
         $('.confirm-booking').on('click', function() {
           const receipt = $('#receiptPopup');
@@ -1025,14 +1025,14 @@
             .then(function(response) {
               hidePopups();
               $('#guestName').text(bookingData.firstName + ' ' + bookingData.lastName);
-              showPopup($('#availabilityPopup'));
+              showPopup('#availabilityPopup');
               
               // Download receipt after successful booking
               downloadReceipt(bookingData);
             }, function(error) {
               console.error('Email error:', error);
               $('#errorMessage').text('Failed to send booking request. Please try again or contact us directly.');
-              showPopup($('#errorPopup'));
+              showPopup('#errorPopup');
             });
         });
 

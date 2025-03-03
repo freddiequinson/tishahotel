@@ -188,6 +188,48 @@ app.get('/api/roomConfig', async (req, res) => {
   }
 });
 
+// Handle new bookings
+app.post('/api/bookings', async (req, res) => {
+  try {
+    console.log('Received booking request:', req.body);
+    
+    // Validate required fields
+    const requiredFields = ['firstName', 'lastName', 'phone', 'checkinDate', 'checkoutDate', 'adults', 'children', 'roomType', 'bookingNumber'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        missingFields
+      });
+    }
+
+    // Create booking object
+    const booking = {
+      ...req.body,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Save to database
+    await db.collection('bookings').insertOne(booking);
+    
+    console.log('Booking saved successfully:', booking.bookingNumber);
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      bookingNumber: booking.bookingNumber
+    });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({
+      error: 'Failed to create booking',
+      message: error.message
+    });
+  }
+});
+
 app.post('/api/updateRoom', async (req, res) => {
   try {
     console.log('Received update request:', req.body);
