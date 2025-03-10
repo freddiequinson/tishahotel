@@ -19,6 +19,25 @@
       "createdAt": "2025-02-21T13:31:58.679Z",
       "status": "confirmed",
       "updatedAt": "2025-02-21T13:35:43.964Z"
+    },
+    {
+      "bookingNumber": "TH250310-9804",
+      "firstName": "fred",
+      "lastName": "agyare",
+      "email": "",
+      "phone": "0241293754",
+      "checkinDate": "28 March, 2025",
+      "checkoutDate": "29 March, 2025",
+      "adults": 2,
+      "children": 1,
+      "roomType": "master",
+      "nights": 1,
+      "numberOfRooms": 1,
+      "basePrice": 300,
+      "totalAmount": 300,
+      "roomName": "Master Room",
+      "createdAt": "2025-03-10T15:37:02.989Z",
+      "status": "pending"
     }
   ]
 }
