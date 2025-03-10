@@ -617,20 +617,25 @@ textarea.form-control {
     display: inline-block; }
 
 .footer-section {
-  background: #1a1a1a;
-  color: #fff; }
+  padding: 7em 0;
+  background: #fafafa; }
   .footer-section a {
-    color: rgba(255, 255, 255, 0.7); }
+    color: #000; }
     .footer-section a:hover {
-      color: #fff; }
+      color: #ffba5a; }
   .footer-section p {
-    color: rgba(255, 255, 255, 0.5); }
+    color: #737373; }
   .footer-section .bordertop {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #f2f2f2;
     padding-top: 20px; }
-  .footer-section .contact-info span.d-block {
-    font-style: italic;
-    color: #fff; }
+  .footer-section .contact-info {
+    color: #000; }
+    .footer-section .contact-info span.d-block {
+      font-style: italic;
+      color: #737373; }
+    .footer-section .contact-info span:not(.d-block) {
+      color: #000;
+      font-weight: 500; }
   .footer-section .social a {
     font-size: 18px;
     padding: 10px; }
