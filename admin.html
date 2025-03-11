@@ -809,29 +809,38 @@
                 <thead>
                   <tr>
                     <th>Room Type</th>
+                    <th>Occupancy</th>
                     <th>Current Price</th>
-                    <th>New Price</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>Junior Suite</td>
-                    <td>GH₵250</td>
-                    <td><input type="number" class="form-control price-input" value="250"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td>2 Adults + 1 Child</td>
+                    <td>GH₵300</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary edit-room" data-room="junior"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger delete-room" data-room="junior"><i class="fas fa-trash"></i></button>
+                    </td>
                   </tr>
                   <tr>
                     <td>Standard Room</td>
-                    <td>GH₵280</td>
-                    <td><input type="number" class="form-control price-input" value="280"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td>2 Adults + 1 Child</td>
+                    <td>GH₵350</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary edit-room" data-room="standard"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger delete-room" data-room="standard"><i class="fas fa-trash"></i></button>
+                    </td>
                   </tr>
                   <tr>
                     <td>Master Room</td>
-                    <td>GH₵300</td>
-                    <td><input type="number" class="form-control price-input" value="300"></td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                    <td>3 Adults + 2 Children</td>
+                    <td>GH₵385</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary edit-room" data-room="master"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger delete-room" data-room="master"><i class="fas fa-trash"></i></button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
