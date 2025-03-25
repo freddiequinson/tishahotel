@@ -479,7 +479,7 @@
         <div class="text-center">
           <i class="fas fa-check-circle check-icon" style="color: #28a745; font-size: 64px;"></i>
           <h4>Booking Confirmed!</h4>
-          <p>Thank you <span id="guestName"></span> for your booking.</commiy p>
+          <p>Thank you <span id="guestName"></span> for your booking.</p>
           <p>Your receipt has been downloaded.</p>
           <p>We will contact you shortly to confirm payment details.</p>
           <div class="mt-4">
@@ -867,14 +867,36 @@
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function(response) {
-              console.log('Booking saved:', response);
-              showReceipt(bookingDetails, formData);
-              $('#availabilityPopup').hide();
-              $('#receiptPopup').show();
+              if (response.success) {
+                console.log('Booking saved:', response);
+                showReceipt(bookingDetails, formData);
+                $('#availabilityPopup').hide();
+                $('#receiptPopup').show();
+
+                // Send confirmation email
+                emailjs.send('service_tisha', 'template_booking', response.emailParams)
+                  .then(function(response) {
+                    console.log('Email sent:', response);
+                  }, function(error) {
+                    console.error('Email error:', error);
+                  });
+              } else {
+                console.error('Booking error:', response);
+                alert('There was an error processing your booking. Please try again.');
+              }
             },
             error: function(xhr, status, error) {
               console.error('Error saving booking:', error);
-              alert('There was an error saving your booking. Please try again.');
+              let errorMessage = 'There was an error saving your booking. ';
+              
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage += xhr.responseJSON.message;
+                if (xhr.responseJSON.missingFields) {
+                  errorMessage += '\nMissing fields: ' + xhr.responseJSON.missingFields.join(', ');
+                }
+              }
+              
+              alert(errorMessage);
             }
           });
         });
