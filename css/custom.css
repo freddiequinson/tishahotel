@@ -28,6 +28,19 @@
     z-index: 10;
 }
 
+/* Fix navigation menu overlap */
+.site-menu-toggle {
+    z-index: 30; /* Higher than check-availabilty */
+}
+
+.site-navigation.overlay {
+    z-index: 25; /* Higher than check-availabilty but lower than toggle */
+}
+
+.site-navigation.overlay .quick-book {
+    display: none; /* Hide the check-in form when menu is open */
+}
+
 @media (max-width: 991.98px) {
     .site-hero {
         height: 70vh;

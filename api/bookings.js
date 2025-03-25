@@ -1,3 +1,5 @@
+const bodyParser = require('body-parser');
+
 module.exports = (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,9 +21,16 @@ module.exports = (req, res) => {
   try {
     if (typeof req.body === 'string') {
       bookingData = JSON.parse(req.body);
-    } else {
+    } else if (req.body) {
       bookingData = req.body;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'No booking data provided'
+      });
     }
+
+    console.log('Received booking data:', bookingData); // Debug log
 
     // Validate required fields
     const requiredFields = [
@@ -62,6 +71,8 @@ module.exports = (req, res) => {
       email: bookingData.email,
       phone: bookingData.phone
     };
+
+    console.log('Sending response with email params:', emailParams); // Debug log
 
     res.status(200).json({
       success: true,

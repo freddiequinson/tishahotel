@@ -822,7 +822,7 @@
           // Add footer
           doc.setFontSize(10);
           doc.text("Tisha Hotel", 105, 260, { align: "center" });
-          doc.text("Phone: +233 24 749 3838", 105, 265, { align: "center" });
+          doc.text("Phone: +233 24 170 3838", 105, 265, { align: "center" });
           doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 270, { align: "center" });
           
           // Save the PDF
@@ -859,22 +859,40 @@
           formData.roomName = bookingDetails.roomName;
 
           // Save booking to server
+          const apiUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api/bookings'
+            : '/api/bookings';
+
+          console.log('Sending booking request to:', apiUrl);
+          console.log('Booking data:', formData);
+
           $.ajax({
-            url: window.location.hostname === 'localhost' 
-              ? 'http://localhost:3000/api/bookings'
-              : '/api/bookings',
+            url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function(response) {
-              if (response.success) {
+              console.log('Server response:', response);
+              if (response && response.success) {
                 console.log('Booking saved:', response);
                 showReceipt(bookingDetails, formData);
                 $('#availabilityPopup').hide();
                 $('#receiptPopup').show();
 
                 // Send confirmation email
-                emailjs.send('service_tisha', 'template_booking', response.emailParams)
+                const emailParams = response.emailParams || {
+                  booking_number: formData.bookingNumber,
+                  guest_name: `${formData.firstName} ${formData.lastName}`,
+                  check_in: formData.checkinDate,
+                  check_out: formData.checkoutDate,
+                  room_type: formData.roomType,
+                  num_rooms: formData.numberOfRooms,
+                  total_amount: `GH₵${formData.totalAmount}`,
+                  email: formData.email,
+                  phone: formData.phone
+                };
+
+                emailjs.send('service_tisha', 'template_booking', emailParams)
                   .then(function(response) {
                     console.log('Email sent:', response);
                   }, function(error) {
@@ -886,14 +904,24 @@
               }
             },
             error: function(xhr, status, error) {
-              console.error('Error saving booking:', error);
+              console.error('Error saving booking:', {
+                status: status,
+                error: error,
+                response: xhr.responseText
+              });
+              
               let errorMessage = 'There was an error saving your booking. ';
               
-              if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage += xhr.responseJSON.message;
-                if (xhr.responseJSON.missingFields) {
-                  errorMessage += '\nMissing fields: ' + xhr.responseJSON.missingFields.join(', ');
+              try {
+                const response = xhr.responseJSON;
+                if (response && response.message) {
+                  errorMessage += response.message;
+                  if (response.missingFields) {
+                    errorMessage += '\nMissing fields: ' + response.missingFields.join(', ');
+                  }
                 }
+              } catch (e) {
+                console.error('Error parsing error response:', e);
               }
               
               alert(errorMessage);
