@@ -1,0 +1,50 @@
+/* Custom styles to fix layout issues */
+.site-hero {
+    height: 80vh; /* Reduced from 100vh */
+    min-height: 600px; /* Reduced from 700px */
+}
+
+.site-hero.overlay:before {
+    height: 80vh;
+    min-height: 600px;
+}
+
+.site-hero-inner {
+    height: 80vh;
+    min-height: 600px;
+}
+
+.check-availabilty {
+    position: relative;
+    margin-top: -100px; /* Pull the form up */
+    z-index: 20; /* Ensure it's above other elements */
+}
+
+.block-32 {
+    background: #fff;
+    padding: 30px;
+    box-shadow: 0 2px 80px -10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 991.98px) {
+    .site-hero {
+        height: 70vh;
+        min-height: 500px;
+    }
+    
+    .site-hero.overlay:before {
+        height: 70vh;
+        min-height: 500px;
+    }
+    
+    .site-hero-inner {
+        height: 70vh;
+        min-height: 500px;
+    }
+    
+    .check-availabilty {
+        margin-top: -50px;
+    }
+}
