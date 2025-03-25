@@ -603,7 +603,7 @@
         $.ajax({
           url: window.location.hostname === 'localhost' 
             ? 'http://localhost:3000/api/roomConfig'
-            : 'https://tishahotel.onrender.com/api/roomConfig',
+            : '/api/roomConfig',
           method: 'GET',
           success: function(config) {
             ROOM_CONFIG = config;
@@ -853,7 +853,7 @@
           $.ajax({
             url: window.location.hostname === 'localhost' 
               ? 'http://localhost:3000/api/bookings'
-              : 'https://tishahotel.onrender.com/api/bookings',
+              : '/api/bookings',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),
