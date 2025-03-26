@@ -858,75 +858,30 @@
           formData.totalAmount = bookingDetails.totalPrice;
           formData.roomName = bookingDetails.roomName;
 
-          // Save booking to server
-          const apiUrl = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000/api/bookings'
-            : '/api/bookings';
+          // Show receipt directly without saving to server
+          showReceipt(bookingDetails, formData);
+          $('#availabilityPopup').hide();
+          $('#receiptPopup').show();
 
-          console.log('Sending booking request to:', apiUrl);
-          console.log('Booking data:', formData);
+          // Send confirmation email
+          const emailParams = {
+            booking_number: formData.bookingNumber,
+            guest_name: `${formData.firstName} ${formData.lastName}`,
+            check_in: formData.checkinDate,
+            check_out: formData.checkoutDate,
+            room_type: formData.roomType,
+            num_rooms: formData.numberOfRooms,
+            total_amount: `GH₵${formData.totalAmount}`,
+            email: formData.email,
+            phone: formData.phone
+          };
 
-          $.ajax({
-            url: apiUrl,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function(response) {
-              console.log('Server response:', response);
-              if (response && response.success) {
-                console.log('Booking saved:', response);
-                showReceipt(bookingDetails, formData);
-                $('#availabilityPopup').hide();
-                $('#receiptPopup').show();
-
-                // Send confirmation email
-                const emailParams = response.emailParams || {
-                  booking_number: formData.bookingNumber,
-                  guest_name: `${formData.firstName} ${formData.lastName}`,
-                  check_in: formData.checkinDate,
-                  check_out: formData.checkoutDate,
-                  room_type: formData.roomType,
-                  num_rooms: formData.numberOfRooms,
-                  total_amount: `GH₵${formData.totalAmount}`,
-                  email: formData.email,
-                  phone: formData.phone
-                };
-
-                emailjs.send('service_tisha', 'template_booking', emailParams)
-                  .then(function(response) {
-                    console.log('Email sent:', response);
-                  }, function(error) {
-                    console.error('Email error:', error);
-                  });
-              } else {
-                console.error('Booking error:', response);
-                alert('There was an error processing your booking. Please try again.');
-              }
-            },
-            error: function(xhr, status, error) {
-              console.error('Error saving booking:', {
-                status: status,
-                error: error,
-                response: xhr.responseText
-              });
-              
-              let errorMessage = 'There was an error saving your booking. ';
-              
-              try {
-                const response = xhr.responseJSON;
-                if (response && response.message) {
-                  errorMessage += response.message;
-                  if (response.missingFields) {
-                    errorMessage += '\nMissing fields: ' + response.missingFields.join(', ');
-                  }
-                }
-              } catch (e) {
-                console.error('Error parsing error response:', e);
-              }
-              
-              alert(errorMessage);
-            }
-          });
+          emailjs.send('service_tisha', 'template_booking', emailParams)
+            .then(function(response) {
+              console.log('Email sent:', response);
+            }, function(error) {
+              console.error('Email error:', error);
+            });
         });
 
         // Handle booking confirmation
