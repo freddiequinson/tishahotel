@@ -2,16 +2,21 @@
   "version": 2,
   "builds": [
     { "src": "*.html", "use": "@vercel/static" },
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "css/**/*", "use": "@vercel/static" },
-    { "src": "js/**/*", "use": "@vercel/static" },
-    { "src": "fonts/**/*", "use": "@vercel/static" },
-    { "src": "images/**/*", "use": "@vercel/static" },
-    { "src": "assets/**/*", "use": "@vercel/static" }
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/$1" }
-  ]
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 }

@@ -1,36 +1,27 @@
+const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 
-module.exports = (req, res) => {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const app = express();
 
-  // Handle OPTIONS request for CORS
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+// Enable CORS
+app.use(cors());
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+// Parse JSON bodies
+app.use(bodyParser.json());
 
-  // Parse request body
-  let bookingData;
+// Main booking handler
+const handleBooking = (req, res) => {
   try {
-    if (typeof req.body === 'string') {
-      bookingData = JSON.parse(req.body);
-    } else if (req.body) {
-      bookingData = req.body;
-    } else {
+    const bookingData = req.body;
+    console.log('Received booking data:', bookingData);
+
+    if (!bookingData) {
       return res.status(400).json({
         success: false,
         message: 'No booking data provided'
       });
     }
-
-    console.log('Received booking data:', bookingData); // Debug log
 
     // Validate required fields
     const requiredFields = [
@@ -58,8 +49,7 @@ module.exports = (req, res) => {
       });
     }
 
-    // Here you would typically save the booking data to a database
-    // For now, we'll send an email notification and return success
+    // Prepare email parameters
     const emailParams = {
       booking_number: bookingData.bookingNumber,
       guest_name: `${bookingData.firstName} ${bookingData.lastName}`,
@@ -72,7 +62,7 @@ module.exports = (req, res) => {
       phone: bookingData.phone
     };
 
-    console.log('Sending response with email params:', emailParams); // Debug log
+    console.log('Sending response with email params:', emailParams);
 
     res.status(200).json({
       success: true,
@@ -89,3 +79,10 @@ module.exports = (req, res) => {
     });
   }
 };
+
+// Handle both POST and OPTIONS
+app.options('/api/bookings', cors());
+app.post('/api/bookings', handleBooking);
+
+// Export the Express app
+module.exports = app;
